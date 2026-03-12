@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://the-zer0.github.io/thezer0-tools/sitemap.xml
