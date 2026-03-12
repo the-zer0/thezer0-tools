@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --surface: #ffffff;
+    --border: #e8e0d0;
+    --border-hover: #d4a96a;
+    --text-primary: #1a1510;
+    --text-secondary: #6b5f4e;
+    --text-muted: #a89880;
+    --accent: #c97c2a;
+    --accent-light: #f5e6cc;
+    --accent-glow: rgba(201, 124, 42, 0.12);
+    --shadow-sm: 0 1px 3px rgba(26,21,16,0.06), 0 1px 2px rgba(26,21,16,0.04);
+    --shadow-hover: 0 8px 32px rgba(201,124,42,0.14), 0 2px 8px rgba(26,21,16,0.06);
+    --radius: 12px;
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,124,42,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 56px 24px 40px;
+    text-align: center;
+    animation: fadeDown 0.5s ease both;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid rgba(201,124,42,0.2);
+    margin-bottom: 20px;
+  }
+
+  .header-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  header h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+
+  header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 32px;
+  }
+
+  /* ── Search ── */
+  .search-wrapper {
+    position: relative;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: color var(--transition);
+  }
+
+  .search-wrapper:focus-within .search-icon { color: var(--accent); }
+
+  .search-bar {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text-primary);
+    outline: none;
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .search-bar::placeholder { color: var(--text-muted); }
+  .search-bar:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow), var(--shadow-sm);
+  }
+
+  /* ── Category label ── */
+  .category-label {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 24px 0;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .category-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Grid ── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 14px 24px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  /* ── Tool Card ── */
+  .tool-card {
+    display: block;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    animation: fadeUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-glow) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+
+  .tool-card:hover::before { opacity: 1; }
+  .tool-card:hover { transform: translateY(-3px); border-color: var(--border-hover); box-shadow: var(--shadow-hover); }
+  .tool-card:active { transform: translateY(-1px); }
+
+  .tool-card:nth-child(1)  { animation-delay: 0.04s; }
+  .tool-card:nth-child(2)  { animation-delay: 0.08s; }
+  .tool-card:nth-child(3)  { animation-delay: 0.12s; }
+  .tool-card:nth-child(4)  { animation-delay: 0.16s; }
+  .tool-card:nth-child(5)  { animation-delay: 0.20s; }
+  .tool-card:nth-child(6)  { animation-delay: 0.24s; }
+  .tool-card:nth-child(7)  { animation-delay: 0.28s; }
+  .tool-card:nth-child(8)  { animation-delay: 0.32s; }
+  .tool-card:nth-child(9)  { animation-delay: 0.36s; }
+  .tool-card:nth-child(10) { animation-delay: 0.40s; }
+  .tool-card:nth-child(11) { animation-delay: 0.44s; }
+  .tool-card:nth-child(12) { animation-delay: 0.48s; }
+
+  .tool-icon {
+    width: 36px; height: 36px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .tool-card:hover .tool-icon { background: rgba(201,124,42,0.2); transform: scale(1.08); }
+
+  .tool-card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    letter-spacing: -0.01em;
+    padding-right: 18px;
+  }
+
+  .tool-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .card-arrow {
+    position: absolute;
+    top: 20px; right: 18px;
+    color: var(--text-muted);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity var(--transition), transform var(--transition), color var(--transition);
+    font-size: 15px;
+  }
+
+  .tool-card:hover .card-arrow { opacity: 1; transform: translateX(0); color: var(--accent); }
+  .tool-card.hidden { display: none; }
+
+  /* No results */
+  .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    display: none;
+  }
+  .no-results.visible { display: block; }
+
+  /* ── Footer ── */
+  footer {
+    position: relative; z-index: 1;
+    margin-top: auto;
+    padding: 24px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+
+  footer p { font-size: 13px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+  /* ── Animations ── */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp   { from { opacity: 0; transform: translateY(14px); }  to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse    { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+
+  @media (max-width: 600px) {
+    .container { grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 16px 48px; }
+    header { padding: 40px 20px 28px; }
+    .category-label { padding: 20px 16px 0; }
+  }
+  @media (max-width: 360px) {
+    .container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Developer Toolkit</div>
+  <h1>Thezer0 Tools</h1>
+  <p>Simple, fast tools for developers &amp; creators</p>
+
+  <div class="search-wrapper">
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input
+      type="text"
+      id="searchBar"
+      placeholder="Search tools..."
+      oninput="searchTools()"
+      class="search-bar"
+      autocomplete="off"
+    />
+  </div>
+</header>
+
+<div class="category-label" id="categoryLabel">All Tools — 12</div>
+
+<div class="container" id="toolsContainer">
+
+  <a class="tool-card" href="tools/json-formatter.html">
+    <div class="tool-icon">{ }</div>
+    <span class="card-arrow">→</span>
+    <h2>JSON Formatter</h2>
+    <p>Format and validate JSON instantly</p>
+  </a>
+
+  <a class="tool-card" href="tools/word-counter.html">
+    <div class="tool-icon">Aa</div>
+    <span class="card-arrow">→</span>
+    <h2>Word Counter</h2>
+    <p>Count words, characters and sentences</p>
+  </a>
+
+  <a class="tool-card" href="tools/password-generator.html">
+    <div class="tool-icon">🔑</div>
+    <span class="card-arrow">→</span>
+    <h2>Password Generator</h2>
+    <p>Generate strong, random passwords</p>
+  </a>
+
+  <a class="tool-card" href="tools/case-converter.html">
+    <div class="tool-icon">Tt</div>
+    <span class="card-arrow">→</span>
+    <h2>Case Converter</h2>
+    <p>Convert text between case styles</p>
+  </a>
+
+  <a class="tool-card" href="tools/base64-encoder.html">
+    <div class="tool-icon">64</div>
+    <span class="card-arrow">→</span>
+    <h2>Base64 Encoder</h2>
+    <p>Encode or decode Base64 text</p>
+  </a>
+
+  <a class="tool-card" href="tools/color-picker.html">
+    <div class="tool-icon">🎨</div>
+    <span class="card-arrow">→</span>
+    <h2>Color Picker</h2>
+    <p>Pick and copy colors in any format</p>
+  </a>
+
+  <a class="tool-card" href="tools/rgb-hex.html">
+    <div class="tool-icon">↔</div>
+    <span class="card-arrow">→</span>
+    <h2>RGB ↔ Hex</h2>
+    <p>Convert between RGB and HEX colors</p>
+  </a>
+
+  <a class="tool-card" href="tools/image-compressor.html">
+    <div class="tool-icon">🗜</div>
+    <span class="card-arrow">→</span>
+    <h2>Image Compressor</h2>
+    <p>Reduce image size without losing quality</p>
+  </a>
+
+  <a class="tool-card" href="tools/image-resizer.html">
+    <div class="tool-icon">⤢</div>
+    <span class="card-arrow">→</span>
+    <h2>Image Resizer</h2>
+    <p>Resize images to exact dimensions</p>
+  </a>
+
+  <a class="tool-card" href="tools/image-to-pdf.html">
+    <div class="tool-icon">📄</div>
+    <span class="card-arrow">→</span>
+    <h2>Image to PDF</h2>
+    <p>Convert images into a single PDF</p>
+  </a>
+
+  <a class="tool-card" href="tools/pdf-merge.html">
+    <div class="tool-icon">📎</div>
+    <span class="card-arrow">→</span>
+    <h2>PDF Merger</h2>
+    <p>Combine multiple PDFs into one</p>
+  </a>
+
+  <a class="tool-card" href="tools/pdf-split.html">
+    <div class="tool-icon">✂</div>
+    <span class="card-arrow">→</span>
+    <h2>PDF Splitter</h2>
+    <p>Split a PDF into pages or ranges</p>
+  </a>
+
+  <div class="no-results" id="noResults">
+    No tools match "<span id="noResultsQuery"></span>"
+  </div>
+
+</div>
+
+<footer>
+  <p>Built with ❤️ by Thezer0</p>
+</footer>
+
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Resizer — Free Dev Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2; --surface: #ffffff; --border: #e8e0d0; --border-hover: #d4a96a;
+    --text-primary: #1a1510; --text-secondary: #6b5f4e; --text-muted: #a89880;
+    --accent: #c97c2a; --accent-light: #f5e6cc; --accent-glow: rgba(201,124,42,0.12);
+    --shadow-sm: 0 1px 3px rgba(26,21,16,0.06); --radius: 12px; --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,124,42,0.07) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  nav { position: relative; z-index: 2; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(250,247,242,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 8px; }
+  nav a { font-size: 13px; color: var(--text-muted); text-decoration: none; font-family: 'DM Mono', monospace; transition: color var(--transition); }
+  nav a:hover { color: var(--accent); }
+  nav span { color: var(--border-hover); font-size: 12px; }
+  nav .current { color: var(--text-secondary); font-weight: 500; }
+
+  main { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 48px 24px 64px; width: 100%; animation: fadeUp 0.4s ease both; }
+  .tool-header { margin-bottom: 32px; }
+  .tool-badge { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(201,124,42,0.2); margin-bottom: 14px; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .tool-desc { font-size: 15px; color: var(--text-secondary); font-weight: 300; }
+
+  .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); }
+  label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+  .section { margin-bottom: 24px; }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  .dropzone { border: 2px dashed var(--border); border-radius: 10px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all var(--transition); background: var(--bg); }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--accent-glow); }
+  .dropzone-icon { font-size: 32px; margin-bottom: 10px; }
+  .dropzone-text { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
+  .dropzone-sub { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  #fileInput { display: none; }
+
+  /* Dimension inputs */
+  .dim-row { display: flex; align-items: center; gap: 12px; }
+  .dim-input-wrap { flex: 1; }
+  .dim-input-wrap label { margin-bottom: 6px; }
+  input[type="number"] {
+    width: 100%; padding: 11px 14px; background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 15px; color: var(--text-primary);
+    outline: none; transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  input[type="number"]:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+
+  .lock-btn {
+    margin-top: 20px; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 10px; cursor: pointer; color: var(--text-muted);
+    font-size: 18px; line-height: 1; transition: all var(--transition); flex-shrink: 0;
+  }
+  .lock-btn:hover { border-color: var(--border-hover); color: var(--accent); }
+  .lock-btn.locked { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+
+  /* Presets */
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; }
+  .preset-pill {
+    padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-secondary); font-family: 'DM Mono', monospace; transition: all var(--transition);
+  }
+  .preset-pill:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
+
+  /* Preview */
+  .preview-wrap { text-align: center; }
+  .preview-wrap img { max-width: 100%; max-height: 220px; border-radius: 8px; border: 1.5px solid var(--border); object-fit: contain; background: var(--bg); }
+  .dim-tag { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); margin-top: 6px; }
+  .dim-tag span { color: var(--accent); font-weight: 500; }
+
+  button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(201,124,42,0.25); }
+  .btn-primary:hover { background: #b56d21; transform: translateY(-1px); }
+  .btn-download { background: #2d7a4f; color: #fff; border-color: #2d7a4f; }
+  .btn-download:hover { background: #256040; transform: translateY(-1px); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 480px) { nav { padding: 14px 16px; } main { padding: 32px 16px 48px; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html">Free Dev Tools</a>
+  <span>›</span>
+  <span class="current">Image Resizer</span>
+</nav>
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">↔ Resize</div>
+    <h1>Image Resizer</h1>
+    <p class="tool-desc">Resize any image to exact dimensions or use a preset.</p>
+  </div>
+
+  <div class="card">
+    <div class="section">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+        <div class="dropzone-icon">🖼️</div>
+        <div class="dropzone-text">Drop an image here or <strong>click to browse</strong></div>
+        <div class="dropzone-sub">JPG, PNG, WEBP, GIF supported</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" onchange="loadImage(this.files[0])">
+    </div>
+
+    <div class="section">
+      <label>Presets</label>
+      <div class="presets">
+        <button class="preset-pill" onclick="setPreset(1920,1080)">1920×1080</button>
+        <button class="preset-pill" onclick="setPreset(1280,720)">1280×720</button>
+        <button class="preset-pill" onclick="setPreset(800,600)">800×600</button>
+        <button class="preset-pill" onclick="setPreset(512,512)">512×512</button>
+        <button class="preset-pill" onclick="setPreset(256,256)">256×256</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Custom Dimensions</label>
+      <div class="dim-row">
+        <div class="dim-input-wrap">
+          <label>Width (px)</label>
+          <input type="number" id="width" placeholder="e.g. 1920" oninput="onWidthChange(this.value)">
+        </div>
+        <button class="lock-btn locked" id="lockBtn" onclick="toggleLock()" title="Lock aspect ratio">🔒</button>
+        <div class="dim-input-wrap">
+          <label>Height (px)</label>
+          <input type="number" id="height" placeholder="e.g. 1080" oninput="onHeightChange(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div id="previewSection" style="display:none">
+      <div class="divider"></div>
+      <div class="section preview-wrap">
+        <label>Preview</label>
+        <img id="previewImg">
+        <div class="dim-tag">Original: <span id="origDims">—</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" onclick="resize()">⚡ Resize</button>
+        <button class="btn-download" id="dlBtn" style="display:none" onclick="download()">↓ Download</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  let origImg = null; let aspectRatio = 1; let locked = true; let resizedBlob = null;
+
+  function toggleLock() {
+    locked = !locked;
+    const btn = document.getElementById('lockBtn');
+    btn.textContent = locked ? '🔒' : '🔓';
+    btn.classList.toggle('locked', locked);
+  }
+
+  function onDrag(e, active) { e.preventDefault(); document.getElementById('dropzone').classList.toggle('drag', active); }
+  function onDrop(e) { e.preventDefault(); onDrag(e, false); loadImage(e.dataTransfer.files[0]); }
+
+  function loadImage(file) {
+    if (!file) return;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      origImg = img;
+      aspectRatio = img.width / img.height;
+      document.getElementById('width').value = img.width;
+      document.getElementById('height').value = img.height;
+      document.getElementById('origDims').textContent = `${img.width} × ${img.height}`;
+      document.getElementById('previewImg').src = img.src;
+      document.getElementById('previewSection').style.display = 'block';
+      document.getElementById('dlBtn').style.display = 'none';
+    };
+  }
+
+  function onWidthChange(val) {
+    if (locked && origImg) document.getElementById('height').value = Math.round(val / aspectRatio);
+  }
+  function onHeightChange(val) {
+    if (locked && origImg) document.getElementById('width').value = Math.round(val * aspectRatio);
+  }
+
+  function setPreset(w, h) {
+    document.getElementById('width').value = w;
+    document.getElementById('height').value = h;
+    locked = false;
+    document.getElementById('lockBtn').textContent = '🔓';
+    document.getElementById('lockBtn').classList.remove('locked');
+  }
+
+  function resize() {
+    if (!origImg) return;
+    const w = parseInt(document.getElementById('width').value);
+    const h = parseInt(document.getElementById('height').value);
+    if (!w || !h) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(origImg, 0, 0, w, h);
+    canvas.toBlob(blob => {
+      resizedBlob = blob;
+      document.getElementById('previewImg').src = URL.createObjectURL(blob);
+      document.getElementById('origDims').textContent = `${w} × ${h}`;
+      document.getElementById('dlBtn').style.display = 'inline-flex';
+    });
+  }
+
+  function download() {
+    if (!resizedBlob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(resizedBlob);
+    a.download = 'resized.png'; a.click();
+  }
+</script>
+</body>
+</html>

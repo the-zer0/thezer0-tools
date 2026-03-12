@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Encoder — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --surface: #ffffff;
+    --border: #e8e0d0;
+    --border-hover: #d4a96a;
+    --text-primary: #1a1510;
+    --text-secondary: #6b5f4e;
+    --text-muted: #a89880;
+    --accent: #c97c2a;
+    --accent-light: #f5e6cc;
+    --accent-glow: rgba(201,124,42,0.12);
+    --shadow-sm: 0 1px 3px rgba(26,21,16,0.06), 0 1px 2px rgba(26,21,16,0.04);
+    --shadow-md: 0 4px 16px rgba(26,21,16,0.08);
+    --radius: 12px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,124,42,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Nav */
+  nav {
+    position: relative;
+    z-index: 2;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(250,247,242,0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  nav a {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    transition: color var(--transition);
+  }
+  nav a:hover { color: var(--accent); }
+  nav span { color: var(--border-hover); font-size: 12px; }
+  nav .current { color: var(--text-secondary); font-weight: 500; }
+
+  /* Main */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+    width: 100%;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .tool-header {
+    margin-bottom: 32px;
+  }
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid rgba(201,124,42,0.2);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .tool-desc {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13.5px;
+    color: var(--text-primary);
+    resize: vertical;
+    min-height: 120px;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    line-height: 1.6;
+  }
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+  }
+  textarea::placeholder { color: var(--text-muted); }
+
+  .section { margin-bottom: 20px; }
+
+  /* Buttons */
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all var(--transition);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(201,124,42,0.25);
+  }
+  .btn-primary:hover {
+    background: #b56d21;
+    border-color: #b56d21;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(201,124,42,0.35);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+  .btn-secondary:hover {
+    border-color: var(--border-hover);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .btn-secondary:active { transform: translateY(0); }
+
+  .btn-copy {
+    background: var(--surface);
+    color: var(--text-muted);
+    border-color: var(--border);
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+  .btn-copy:hover {
+    border-color: var(--border-hover);
+    color: var(--accent);
+  }
+  .btn-copy.copied {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    main { padding: 32px 16px 48px; }
+    nav { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html">Thezer0 Tools</a>
+  <span>›</span>
+  <span class="current">Base64 Encoder</span>
+</nav>
+
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">64</div>
+    <h1>Base64 Encoder / Decoder</h1>
+    <p class="tool-desc">Encode plain text to Base64 or decode Base64 back to text.</p>
+  </div>
+
+  <div class="card">
+    <div class="section">
+      <label>Input</label>
+      <textarea id="text" placeholder="Paste your text here..."></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-primary" onclick="encode()">↑ Encode to Base64</button>
+      <button class="btn-secondary" onclick="decode()">↓ Decode from Base64</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="result-header">
+      <label style="margin:0">Output</label>
+      <button class="btn-copy" id="copyBtn" onclick="copyResult()">Copy</button>
+    </div>
+    <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
+  </div>
+</main>
+
+<script>
+  function encode() {
+    try {
+      document.getElementById("result").value = btoa(document.getElementById("text").value);
+    } catch(e) { alert("Encoding failed — check your input."); }
+  }
+  function decode() {
+    try {
+      document.getElementById("result").value = atob(document.getElementById("text").value);
+    } catch(e) { alert("Invalid Base64 string."); }
+  }
+  function copyResult() {
+    const val = document.getElementById("result").value;
+    if (!val) return;
+    navigator.clipboard.writeText(val);
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 2000);
+  }
+</script>
+</body>
+</html>

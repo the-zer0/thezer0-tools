@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Formatter — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2; --surface: #ffffff; --border: #e8e0d0; --border-hover: #d4a96a;
+    --text-primary: #1a1510; --text-secondary: #6b5f4e; --text-muted: #a89880;
+    --accent: #c97c2a; --accent-light: #f5e6cc; --accent-glow: rgba(201,124,42,0.12);
+    --error: #dc3545; --error-light: #fff0f0; --success: #2d7a4f; --success-light: #f0fff4;
+    --shadow-sm: 0 1px 3px rgba(26,21,16,0.06); --radius: 12px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,124,42,0.07) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  nav { position: relative; z-index: 2; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(250,247,242,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 8px; }
+  nav a { font-size: 13px; color: var(--text-muted); text-decoration: none; font-family: 'DM Mono', monospace; transition: color var(--transition); }
+  nav a:hover { color: var(--accent); }
+  nav span { color: var(--border-hover); font-size: 12px; }
+  nav .current { color: var(--text-secondary); font-weight: 500; }
+
+  main { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 48px 24px 64px; width: 100%; animation: fadeUp 0.4s ease both; }
+
+  .tool-header { margin-bottom: 32px; }
+  .tool-badge { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(201,124,42,0.2); margin-bottom: 14px; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .tool-desc { font-size: 15px; color: var(--text-secondary); font-weight: 300; }
+
+  .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); }
+
+  label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+
+  /* Side by side layout on wider screens */
+  .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .editor-grid { grid-template-columns: 1fr; } }
+
+  .pane-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+
+  textarea { width: 100%; padding: 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text-primary); resize: vertical; min-height: 280px; outline: none; transition: border-color var(--transition), box-shadow var(--transition); line-height: 1.7; }
+  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+  textarea::placeholder { color: var(--text-muted); }
+  textarea.error { border-color: var(--error); background: var(--error-light); }
+  textarea.valid { border-color: var(--success); }
+
+  .actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(201,124,42,0.25); }
+  .btn-primary:hover { background: #b56d21; border-color: #b56d21; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(201,124,42,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary { background: var(--surface); color: var(--text-secondary); border-color: var(--border); }
+  .btn-secondary:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
+  .btn-copy { background: var(--surface); color: var(--text-muted); border-color: var(--border); font-size: 13px; padding: 8px 16px; }
+  .btn-copy:hover { border-color: var(--border-hover); color: var(--accent); }
+  .btn-copy.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+  .status-bar { margin-top: 16px; font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text-muted); min-height: 20px; }
+  .status-bar.err { color: var(--error); }
+  .status-bar.ok { color: var(--success); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 480px) { main { padding: 32px 16px 48px; } nav { padding: 14px 16px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html">Thezer0 Tools</a>
+  <span>›</span>
+  <span class="current">JSON Formatter</span>
+</nav>
+
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">{ }</div>
+    <h1>JSON Formatter</h1>
+    <p class="tool-desc">Paste raw JSON to format, validate, and inspect it instantly.</p>
+  </div>
+
+  <div class="card">
+    <div class="editor-grid">
+      <div>
+        <div class="pane-header">
+          <label style="margin:0">Input</label>
+          <button class="btn-copy" onclick="clearAll()" style="padding:5px 12px;font-size:12px;">Clear</button>
+        </div>
+        <textarea id="input" placeholder='{"key": "value"}'></textarea>
+      </div>
+      <div>
+        <div class="pane-header">
+          <label style="margin:0">Formatted Output</label>
+          <button class="btn-copy" id="copyBtn" onclick="copyResult()">Copy</button>
+        </div>
+        <textarea id="output" placeholder="Formatted JSON will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="formatJSON()">⚡ Format JSON</button>
+      <button class="btn-secondary" onclick="minifyJSON()">Minify</button>
+    </div>
+
+    <div class="status-bar" id="status"></div>
+  </div>
+</main>
+
+<script>
+  function formatJSON() {
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+    try {
+      const obj = JSON.parse(input.value);
+      output.value = JSON.stringify(obj, null, 2);
+      input.classList.remove("error"); input.classList.add("valid");
+      output.classList.remove("error"); output.classList.add("valid");
+      status.textContent = "✓ Valid JSON"; status.className = "status-bar ok";
+    } catch(e) {
+      input.classList.add("error"); input.classList.remove("valid");
+      output.value = "";
+      status.textContent = "✗ " + e.message; status.className = "status-bar err";
+    }
+  }
+  function minifyJSON() {
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+    try {
+      const obj = JSON.parse(input.value);
+      output.value = JSON.stringify(obj);
+      status.textContent = "✓ Minified"; status.className = "status-bar ok";
+    } catch(e) {
+      status.textContent = "✗ " + e.message; status.className = "status-bar err";
+    }
+  }
+  function clearAll() {
+    document.getElementById("input").value = "";
+    document.getElementById("output").value = "";
+    document.getElementById("status").textContent = "";
+    document.getElementById("input").className = "";
+    document.getElementById("output").className = "";
+  }
+  function copyResult() {
+    const val = document.getElementById("output").value;
+    if (!val) return;
+    navigator.clipboard.writeText(val);
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "Copied!"; btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 2000);
+  }
+</script>
+</body>
+</html>

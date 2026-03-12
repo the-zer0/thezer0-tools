@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Merger — Free Dev Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<style>
+  :root {
+    --bg: #faf7f2; --surface: #ffffff; --border: #e8e0d0; --border-hover: #d4a96a;
+    --text-primary: #1a1510; --text-secondary: #6b5f4e; --text-muted: #a89880;
+    --accent: #c97c2a; --accent-light: #f5e6cc; --accent-glow: rgba(201,124,42,0.12);
+    --shadow-sm: 0 1px 3px rgba(26,21,16,0.06); --radius: 12px; --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,124,42,0.07) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+  nav { position: relative; z-index: 2; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(250,247,242,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 8px; }
+  nav a { font-size: 13px; color: var(--text-muted); text-decoration: none; font-family: 'DM Mono', monospace; transition: color var(--transition); }
+  nav a:hover { color: var(--accent); }
+  nav span { color: var(--border-hover); font-size: 12px; }
+  nav .current { color: var(--text-secondary); font-weight: 500; }
+
+  main { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 48px 24px 64px; width: 100%; animation: fadeUp 0.4s ease both; }
+  .tool-header { margin-bottom: 32px; }
+  .tool-badge { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(201,124,42,0.2); margin-bottom: 14px; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .tool-desc { font-size: 15px; color: var(--text-secondary); font-weight: 300; }
+
+  .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); }
+  label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+  .section { margin-bottom: 24px; }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  .dropzone { border: 2px dashed var(--border); border-radius: 10px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all var(--transition); background: var(--bg); }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--accent-glow); }
+  .dropzone-icon { font-size: 32px; margin-bottom: 10px; }
+  .dropzone-text { font-size: 15px; color: var(--text-secondary); margin-bottom: 4px; }
+  .dropzone-sub { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  #fileInput { display: none; }
+
+  /* Draggable file list */
+  .file-list { display: flex; flex-direction: column; gap: 8px; }
+  .file-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px;
+    cursor: grab; transition: all var(--transition); user-select: none;
+  }
+  .file-item:hover { border-color: var(--border-hover); }
+  .file-item.dragging { opacity: 0.4; border-style: dashed; }
+  .file-item.drag-over { border-color: var(--accent); background: var(--accent-glow); }
+  .drag-handle { color: var(--text-muted); font-size: 16px; cursor: grab; flex-shrink: 0; }
+  .file-icon { font-size: 22px; flex-shrink: 0; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-meta { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .file-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 4px; border-radius: 4px; transition: color var(--transition); }
+  .file-remove:hover { color: #dc3545; }
+  .order-num { width: 22px; height: 22px; background: var(--accent-light); color: var(--accent); border-radius: 50%; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+
+  .hint { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 10px; }
+
+  .progress-wrap { display: none; margin-top: 16px; }
+  .progress-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; width: 0%; transition: width 0.3s ease; }
+  .progress-label { font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text-muted); margin-top: 8px; }
+
+  button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(201,124,42,0.25); }
+  .btn-primary:hover { background: #b56d21; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: var(--surface); color: var(--text-secondary); border-color: var(--border); }
+  .btn-secondary:hover { border-color: var(--border-hover); color: var(--accent); }
+  .actions { display: flex; gap: 10px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 480px) { nav { padding: 14px 16px; } main { padding: 32px 16px 48px; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html">Free Dev Tools</a>
+  <span>›</span>
+  <span class="current">PDF Merger</span>
+</nav>
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">📎 Merge</div>
+    <h1>PDF Merger</h1>
+    <p class="tool-desc">Combine multiple PDF files into one. Drag to reorder before merging.</p>
+  </div>
+
+  <div class="card">
+    <div class="section">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+        <div class="dropzone-icon">📄</div>
+        <div class="dropzone-text">Drop PDF files here or <strong>click to browse</strong></div>
+        <div class="dropzone-sub">Multiple PDF files supported</div>
+      </div>
+      <input type="file" id="fileInput" accept="application/pdf" multiple onchange="addFiles(this.files)">
+    </div>
+
+    <div id="fileListSection" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <label style="margin:0">Files — <span id="totalPages">0 pages total</span></label>
+        <button class="btn-secondary" style="padding:6px 12px;font-size:12px" onclick="clearFiles()">Clear all</button>
+      </div>
+      <div class="file-list" id="fileList"></div>
+      <p class="hint">⠿ Drag rows to reorder pages</p>
+
+      <div class="divider"></div>
+      <div class="actions">
+        <button class="btn-primary" id="mergeBtn" onclick="mergePDF()">⚡ Merge PDFs</button>
+      </div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  let files = []; let pageCounts = []; let dragSrc = null;
+
+  function onDrag(e, active) { e.preventDefault(); document.getElementById('dropzone').classList.toggle('drag', active); }
+  function onDrop(e) { e.preventDefault(); onDrag(e, false); addFiles(e.dataTransfer.files); }
+  function fmtSize(b) { return b < 1024*1024 ? (b/1024).toFixed(1)+' KB' : (b/(1024*1024)).toFixed(2)+' MB'; }
+
+  async function addFiles(newFiles) {
+    for (const f of Array.from(newFiles)) {
+      if (f.type === 'application/pdf') {
+        files.push(f);
+        try {
+          const { PDFDocument } = PDFLib;
+          const doc = await PDFDocument.load(await f.arrayBuffer());
+          pageCounts.push(doc.getPageCount());
+        } catch { pageCounts.push('?'); }
+      }
+    }
+    renderList();
+  }
+
+  function renderList() {
+    const list = document.getElementById('fileList');
+    document.getElementById('fileListSection').style.display = files.length ? 'block' : 'none';
+    const total = pageCounts.reduce((a, b) => typeof b === 'number' ? a + b : a, 0);
+    document.getElementById('totalPages').textContent = `${files.length} file${files.length>1?'s':''}, ~${total} pages`;
+
+    list.innerHTML = files.map((f, i) => `
+      <div class="file-item" draggable="true" data-i="${i}"
+        ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})"
+        ondrop="dragDrop(event,${i})" ondragend="dragEnd()">
+        <span class="drag-handle">⠿</span>
+        <span class="order-num">${i+1}</span>
+        <span class="file-icon">📄</span>
+        <div class="file-info">
+          <div class="file-name">${f.name}</div>
+          <div class="file-meta">${fmtSize(f.size)} · ${pageCounts[i]} page${pageCounts[i]===1?'':'s'}</div>
+        </div>
+        <button class="file-remove" onclick="removeFile(${i})">✕</button>
+      </div>`).join('');
+  }
+
+  function removeFile(i) { files.splice(i, 1); pageCounts.splice(i, 1); renderList(); }
+  function clearFiles() { files = []; pageCounts = []; renderList(); }
+
+  function dragStart(e, i) { dragSrc = i; e.target.classList.add('dragging'); }
+  function dragOver(e, i) {
+    e.preventDefault();
+    document.querySelectorAll('.file-item').forEach(el => el.classList.remove('drag-over'));
+    e.currentTarget.classList.add('drag-over');
+  }
+  function dragDrop(e, i) {
+    e.preventDefault();
+    if (dragSrc === i) return;
+    [files[dragSrc], files[i]] = [files[i], files[dragSrc]];
+    [pageCounts[dragSrc], pageCounts[i]] = [pageCounts[i], pageCounts[dragSrc]];
+    renderList();
+  }
+  function dragEnd() {
+    document.querySelectorAll('.file-item').forEach(el => { el.classList.remove('dragging'); el.classList.remove('drag-over'); });
+  }
+
+  async function mergePDF() {
+    if (!files.length) return;
+    const pw = document.getElementById('progressWrap');
+    const fill = document.getElementById('progressFill');
+    const lbl = document.getElementById('progressLabel');
+    pw.style.display = 'block';
+
+    const { PDFDocument } = PDFLib;
+    const merged = await PDFDocument.create();
+
+    for (let i = 0; i < files.length; i++) {
+      lbl.textContent = `Merging file ${i+1} of ${files.length}…`;
+      fill.style.width = ((i / files.length) * 100) + '%';
+      const bytes = await files[i].arrayBuffer();
+      const doc = await PDFDocument.load(bytes);
+      const pages = await merged.copyPages(doc, doc.getPageIndices());
+      pages.forEach(p => merged.addPage(p));
+    }
+
+    fill.style.width = '100%';
+    lbl.textContent = 'Saving…';
+
+    const pdfBytes = await merged.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'merged.pdf'; a.click();
+
+    lbl.textContent = `✓ Merged ${files.length} files successfully`;
+    fill.style.background = '#2d7a4f';
+  }
+</script>
+</body>
+</html>
