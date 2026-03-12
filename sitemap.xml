@@ -31,11 +31,15 @@
 </url>
 
 <url>
+<loc>https://the-zer0.github.io/thezer0-tools/tools/rgb-hex.html</loc>
+</url>
+
+<url>
 <loc>https://the-zer0.github.io/thezer0-tools/tools/image-compressor.html</loc>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/image-resizer</loc>
+<loc>https://the-zer0.github.io/thezer0-tools/tools/image-resizer.html</loc>
 </url>
 
 <url>
@@ -48,10 +52,6 @@
 
 <url>
 <loc>https://the-zer0.github.io/thezer0-tools/tools/pdf-split.html</loc>
-</url>
-
-<url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/rbg-hex.html</loc>
 </url>
 
 </urlset>
