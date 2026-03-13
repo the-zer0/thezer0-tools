@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#faf7f2;--surface:#ffffff;--border:#e8e0d0;--border-hover:#d4a96a;
+    --text-primary:#1a1510;--text-secondary:#6b5f4e;--text-muted:#a89880;
+    --accent:#c97c2a;--accent-light:#f5e6cc;--accent-glow:rgba(201,124,42,0.12);
+    --shadow-sm:0 1px 3px rgba(26,21,16,0.06),0 1px 2px rgba(26,21,16,0.04);
+    --radius:12px;--transition:0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,124,42,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+  nav{position:relative;z-index:2;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(250,247,242,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;}
+  nav a{font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;transition:color var(--transition);}
+  nav a:hover{color:var(--accent);}
+  nav span{color:var(--border-hover);font-size:12px;}
+  nav .current{color:var(--text-secondary);font-weight:500;}
+
+  main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:56px 24px 72px;width:100%;animation:fadeUp 0.4s ease both;}
+
+  .page-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid rgba(201,124,42,0.2);margin-bottom:16px;}
+  h1{font-size:clamp(24px,4vw,36px);font-weight:600;letter-spacing:-0.02em;line-height:1.2;margin-bottom:10px;}
+  .last-updated{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border);}
+
+  /* TOC */
+  .toc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:22px 26px;margin-bottom:44px;}
+  .toc-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:12px;}
+  .toc ol{padding-left:18px;display:flex;flex-direction:column;gap:6px;}
+  .toc ol li a{font-size:14px;color:var(--text-secondary);text-decoration:none;transition:color var(--transition);}
+  .toc ol li a:hover{color:var(--accent);}
+
+  /* Content */
+  .terms-section{margin-bottom:40px;scroll-margin-top:24px;}
+  .terms-section h2{font-size:18px;font-weight:600;letter-spacing:-0.01em;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .terms-section h2::before{content:'';display:block;width:3px;height:18px;background:var(--accent);border-radius:99px;flex-shrink:0;}
+  .terms-section p{font-size:15px;color:var(--text-secondary);line-height:1.85;margin-bottom:12px;}
+  .terms-section p:last-child{margin-bottom:0;}
+  .terms-section ul{padding-left:20px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .terms-section ul li{font-size:15px;color:var(--text-secondary);line-height:1.7;}
+
+  /* Highlight box */
+  .highlight-box{background:var(--accent-light);border:1.5px solid rgba(201,124,42,0.25);border-radius:10px;padding:18px 20px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start;}
+  .highlight-box-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+  .highlight-box p{font-size:14px;color:var(--text-secondary);line-height:1.7;margin:0;}
+
+  footer{position:relative;z-index:1;margin-top:auto;padding:28px 24px;text-align:center;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px;}
+  footer p{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  .footer-nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;}
+  .footer-nav a{font-size:12px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;padding:2px 6px;transition:color var(--transition);}
+  .footer-nav a:hover{color:var(--accent);}
+  .footer-sep{font-size:12px;color:var(--border);font-family:'DM Mono',monospace;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:480px){main{padding:40px 16px 56px;}nav{padding:14px 16px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Thezer0 Tools</a>
+  <span>›</span>
+  <span class="current">Terms of Service</span>
+</nav>
+
+<main>
+  <div class="page-badge">Legal</div>
+  <h1>Terms of Service</h1>
+  <p class="last-updated">Last updated: March 2026</p>
+
+  <div class="highlight-box">
+    <span class="highlight-box-icon">📋</span>
+    <p><strong>Short version:</strong> Use our tools freely and responsibly. Don't misuse the platform or attempt to harm others with it. All tools are provided as-is, free of charge.</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Table of contents</div>
+    <ol>
+      <li><a href="#acceptance">Acceptance of terms</a></li>
+      <li><a href="#use">Use of the platform</a></li>
+      <li><a href="#prohibited">Prohibited conduct</a></li>
+      <li><a href="#intellectual-property">Intellectual property</a></li>
+      <li><a href="#disclaimer">Disclaimer of warranties</a></li>
+      <li><a href="#liability">Limitation of liability</a></li>
+      <li><a href="#changes">Changes to terms</a></li>
+      <li><a href="#contact">Contact us</a></li>
+    </ol>
+  </div>
+
+  <div class="terms-section" id="acceptance">
+    <h2>1. Acceptance of terms</h2>
+    <p>By accessing or using Thezer0 Tools ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must not use the Platform.</p>
+    <p>These terms apply to all visitors and users of the Platform. Your continued use of the Platform after any changes to these terms constitutes acceptance of those changes.</p>
+  </div>
+
+  <div class="terms-section" id="use">
+    <h2>2. Use of the platform</h2>
+    <p>Thezer0 Tools grants you a personal, non-exclusive, non-transferable, limited licence to access and use the Platform for lawful purposes only.</p>
+    <p>You may use the Platform to:</p>
+    <ul>
+      <li>Process files, images, PDFs, and text using the provided tools</li>
+      <li>Access and download the output of those tools for personal or commercial use</li>
+      <li>Share links to individual tools with others</li>
+    </ul>
+    <p>All tools are provided free of charge with no registration required.</p>
+  </div>
+
+  <div class="terms-section" id="prohibited">
+    <h2>3. Prohibited conduct</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Use the Platform for any unlawful purpose or in violation of any applicable laws</li>
+      <li>Attempt to scrape, crawl, or systematically download content from the Platform in a way that burdens our infrastructure</li>
+      <li>Reverse engineer, decompile, or attempt to extract the source code of the Platform's server-side components</li>
+      <li>Distribute malware, viruses, or any other harmful code through the Platform</li>
+      <li>Impersonate Thezer0 Tools or its team in any way</li>
+      <li>Use the Platform to process content that is illegal, harmful, or infringes on the rights of others</li>
+    </ul>
+  </div>
+
+  <div class="terms-section" id="intellectual-property">
+    <h2>4. Intellectual property</h2>
+    <p>All content on the Platform — including the design, layout, CSS, JavaScript code, and written content — is the property of Thezer0 Tools and is protected by applicable intellectual property laws.</p>
+    <p>You retain full ownership of any files, text, or data you process using our tools. We make no claim to your content.</p>
+    <p>Open-source libraries used by the Platform remain the property of their respective authors and are used in accordance with their licences.</p>
+  </div>
+
+  <div class="terms-section" id="disclaimer">
+    <h2>5. Disclaimer of warranties</h2>
+    <p>The Platform and all tools are provided <strong>"as is"</strong> and <strong>"as available"</strong> without warranties of any kind, either express or implied.</p>
+    <p>We do not warrant that the Platform will be uninterrupted, error-free, or free of harmful components. We do not guarantee the accuracy or reliability of any output produced by our tools. You use the Platform at your own risk.</p>
+  </div>
+
+  <div class="terms-section" id="liability">
+    <h2>6. Limitation of liability</h2>
+    <p>To the fullest extent permitted by applicable law, Thezer0 Tools and its team shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of — or inability to use — the Platform.</p>
+    <p>This includes, but is not limited to, loss of data, loss of profits, or damage to your device. Our total liability for any claim shall not exceed the amount you paid us in the past twelve months (which, given the Platform is free, will typically be zero).</p>
+  </div>
+
+  <div class="terms-section" id="changes">
+    <h2>7. Changes to terms</h2>
+    <p>We reserve the right to modify these Terms of Service at any time. We will update the "Last updated" date at the top of this page when we do so. It is your responsibility to review these terms periodically.</p>
+    <p>Material changes will be highlighted where possible. Continued use of the Platform after changes constitutes your acceptance of the new terms.</p>
+  </div>
+
+  <div class="terms-section" id="contact">
+    <h2>8. Contact us</h2>
+    <p>If you have any questions about these Terms of Service, please get in touch via our <a href="contact.html" style="color:var(--accent);text-decoration:none;font-weight:500;">Contact page</a>.</p>
+  </div>
+</main>
+
+<footer>
+  <p>Built with ❤️ by Thezer0</p>
+  <nav class="footer-nav">
+    <a href="index.html">Home</a><span class="footer-sep">|</span>
+    <a href="about.html">About</a><span class="footer-sep">|</span>
+    <a href="contact.html">Contact</a><span class="footer-sep">|</span>
+    <a href="privacy-policy.html">Privacy Policy</a><span class="footer-sep">|</span>
+    <a href="terms.html">Terms</a>
+  </nav>
+</footer>
+
+</body>
+</html>

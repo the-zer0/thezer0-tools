@@ -1,140 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<link rel="icon" type="image/png" href="logo.png">
-<meta name="description" content="Convert text to uppercase or lowercase instantly with this free case converter tool.">
-<meta name="keywords" content="case converter, uppercase converter, lowercase converter">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="canonical" href="https://the-zer0.github.io/thezer0-tools/tools/case-converter.html">
-<title>Case Converter Online — Thezer0 Tools</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #faf7f2; --surface: #ffffff; --border: #e8e0d0; --border-hover: #d4a96a;
-    --text-primary: #1a1510; --text-secondary: #6b5f4e; --text-muted: #a89880;
-    --accent: #c97c2a; --accent-light: #f5e6cc; --accent-glow: rgba(201,124,42,0.12);
-    --shadow-sm: 0 1px 3px rgba(26,21,16,0.06); --radius: 12px;
-    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,124,42,0.07) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../logo.png">
+  <link rel="stylesheet" href="../style.css">
+  <meta name="description"
+    content="Convert text to uppercase or lowercase instantly with this free case converter tool.">
+  <meta name="keywords" content="case converter, uppercase converter, lowercase converter">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="canonical" href="https://the-zer0.github.io/thezer0-tools/tools/case-converter.html">
+  <title>Case Converter Online — Thezer0 Tools</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf7f2;
+      --surface: #ffffff;
+      --border: #e8e0d0;
+      --border-hover: #d4a96a;
+      --text-primary: #1a1510;
+      --text-secondary: #6b5f4e;
+      --text-muted: #a89880;
+      --accent: #c97c2a;
+      --accent-light: #f5e6cc;
+      --accent-glow: rgba(201, 124, 42, 0.12);
+      --shadow-sm: 0 1px 3px rgba(26, 21, 16, 0.06);
+      --radius: 12px;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-  nav { position: relative; z-index: 2; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(250,247,242,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 8px; }
-  nav a { font-size: 13px; color: var(--text-muted); text-decoration: none; font-family: 'DM Mono', monospace; transition: color var(--transition); }
-  nav a:hover { color: var(--accent); }
-  nav span { color: var(--border-hover); font-size: 12px; }
-  nav .current { color: var(--text-secondary); font-weight: 500; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  main { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 48px 24px 64px; width: 100%; animation: fadeUp 0.4s ease both; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
 
-  .tool-header { margin-bottom: 32px; }
-  .tool-badge { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(201,124,42,0.2); margin-bottom: 14px; }
-  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
-  .tool-desc { font-size: 15px; color: var(--text-secondary); font-weight: 300; }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201, 124, 42, 0.07) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-sm); }
+    nav {
+      position: relative;
+      z-index: 2;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(250, 247, 242, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-  label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+    nav a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      transition: color var(--transition);
+    }
 
-  textarea { width: 100%; padding: 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13.5px; color: var(--text-primary); resize: vertical; min-height: 120px; outline: none; transition: border-color var(--transition), box-shadow var(--transition); line-height: 1.6; }
-  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
-  textarea::placeholder { color: var(--text-muted); }
+    nav a:hover {
+      color: var(--accent);
+    }
 
-  .section { margin-bottom: 20px; }
-  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+    nav span {
+      color: var(--border-hover);
+      font-size: 12px;
+    }
 
-  .btn-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    nav .current {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
 
-  button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all var(--transition); }
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+      width: 100%;
+      animation: fadeUp 0.4s ease both;
+    }
 
-  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(201,124,42,0.25); }
-  .btn-primary:hover { background: #b56d21; border-color: #b56d21; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(201,124,42,0.35); }
-  .btn-primary:active { transform: translateY(0); }
+    .tool-header {
+      margin-bottom: 32px;
+    }
 
-  .btn-secondary { background: var(--surface); color: var(--text-secondary); border-color: var(--border); }
-  .btn-secondary:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
-  .btn-secondary:active { transform: translateY(0); }
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 99px;
+      border: 1px solid rgba(201, 124, 42, 0.2);
+      margin-bottom: 14px;
+    }
 
-  /* Conversion option pills */
-  .convert-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-  .pill {
-    padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500;
-    cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
-    color: var(--text-secondary); font-family: 'DM Mono', monospace;
-    transition: all var(--transition);
-  }
-  .pill:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
-  .pill:active { transform: translateY(0); }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
 
-  .btn-copy { background: var(--surface); color: var(--text-muted); border-color: var(--border); font-size: 13px; padding: 8px 16px; }
-  .btn-copy:hover { border-color: var(--border-hover); color: var(--accent); }
-  .btn-copy.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+    .tool-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
 
-  .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+    }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-  @media (max-width: 480px) { main { padding: 32px 16px 48px; } nav { padding: 14px 16px; } }
-</style>
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      resize: vertical;
+      min-height: 120px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      line-height: 1.6;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all var(--transition);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(201, 124, 42, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: #b56d21;
+      border-color: #b56d21;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(201, 124, 42, 0.35);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-hover);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+    }
+
+    /* Conversion option pills */
+    .convert-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .pill {
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-family: 'DM Mono', monospace;
+      transition: all var(--transition);
+    }
+
+    .pill:hover {
+      border-color: var(--border-hover);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .pill:active {
+      transform: translateY(0);
+    }
+
+    .btn-copy {
+      background: var(--surface);
+      color: var(--text-muted);
+      border-color: var(--border);
+      font-size: 13px;
+      padding: 8px 16px;
+    }
+
+    .btn-copy:hover {
+      border-color: var(--border-hover);
+      color: var(--accent);
+    }
+
+    .btn-copy.copied {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      main {
+        padding: 32px 16px 48px;
+      }
+
+      nav {
+        padding: 14px 16px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<nav>
-  <a href="../index.html">Thezer0 Tools</a>
-  <span>›</span>
-  <span class="current">Case Converter</span>
-</nav>
+  <nav>
+    <a href="../index.html">Thezer0 Tools</a>
+    <span>›</span>
+    <span class="current">Case Converter</span>
+  </nav>
 
-<main>
-  <div class="tool-header">
-    <div class="tool-badge">Tt</div>
-    <h1>Case Converter</h1>
-    <p class="tool-desc">Transform your text into any case style instantly.</p>
-  </div>
-
-  <div class="card">
-    <div class="section">
-      <label>Input Text</label>
-      <textarea id="text" placeholder="Type or paste your text here..."></textarea>
+  <main>
+    <div class="tool-header">
+      <div class="tool-badge">Tt</div>
+      <h1>Case Converter</h1>
+      <p class="tool-desc">Transform your text into any case style instantly.</p>
     </div>
 
-    <div class="convert-options">
-      <button class="pill" onclick="convert('upper')">UPPERCASE</button>
-      <button class="pill" onclick="convert('lower')">lowercase</button>
-      <button class="pill" onclick="convert('title')">Title Case</button>
-      <button class="pill" onclick="convert('sentence')">Sentence case</button>
+    <div class="card">
+      <div class="section">
+        <label>Input Text</label>
+        <textarea id="text" placeholder="Type or paste your text here..."></textarea>
+      </div>
+
+      <div class="convert-options">
+        <button class="pill" onclick="convert('upper')">UPPERCASE</button>
+        <button class="pill" onclick="convert('lower')">lowercase</button>
+        <button class="pill" onclick="convert('title')">Title Case</button>
+        <button class="pill" onclick="convert('sentence')">Sentence case</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="result-header">
+        <label style="margin:0">Output</label>
+        <button class="btn-copy" id="copyBtn" onclick="copyResult()">Copy</button>
+      </div>
+      <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
     </div>
-
-    <div class="divider"></div>
-
-    <div class="result-header">
-      <label style="margin:0">Output</label>
-      <button class="btn-copy" id="copyBtn" onclick="copyResult()">Copy</button>
-    </div>
-    <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
-  </div>
-</main>
-
-<script>
-  function convert(type) {
-    const text = document.getElementById("text").value;
-    let out = "";
-    if (type === "upper") out = text.toUpperCase();
-    else if (type === "lower") out = text.toLowerCase();
-    else if (type === "title") out = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-    else if (type === "sentence") out = text.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
-    document.getElementById("result").value = out;
-  }
-  function copyResult() {
-    const val = document.getElementById("result").value;
-    if (!val) return;
-    navigator.clipboard.writeText(val);
-    const btn = document.getElementById("copyBtn");
-    btn.textContent = "Copied!";
-    btn.classList.add("copied");
-    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 2000);
-  }
-</script>
+  </main>
+  <footer>
+    <p>Built with ❤️ by Thezer0</p>
+    <nav class="footer-nav">
+      <a href="../index.html">Home</a><span class="footer-sep">|</span>
+      <a href="../about.html">About</a><span class="footer-sep">|</span>
+      <a href="../contact.html">Contact</a><span class="footer-sep">|</span>
+      <a href="../privacy-policy.html">Privacy Policy</a><span class="footer-sep">|</span>
+      <a href="../terms.html">Terms</a>
+    </nav>
+  </footer>
+  <script>
+    function convert(type) {
+      const text = document.getElementById("text").value;
+      let out = "";
+      if (type === "upper") out = text.toUpperCase();
+      else if (type === "lower") out = text.toLowerCase();
+      else if (type === "title") out = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      else if (type === "sentence") out = text.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
+      document.getElementById("result").value = out;
+    }
+    function copyResult() {
+      const val = document.getElementById("result").value;
+      if (!val) return;
+      navigator.clipboard.writeText(val);
+      const btn = document.getElementById("copyBtn");
+      btn.textContent = "Copied!";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 2000);
+    }
+  </script>
 </body>
+
 </html>

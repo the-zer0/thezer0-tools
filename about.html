@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#faf7f2;--surface:#ffffff;--border:#e8e0d0;--border-hover:#d4a96a;
+    --text-primary:#1a1510;--text-secondary:#6b5f4e;--text-muted:#a89880;
+    --accent:#c97c2a;--accent-light:#f5e6cc;--accent-glow:rgba(201,124,42,0.12);
+    --shadow-sm:0 1px 3px rgba(26,21,16,0.06),0 1px 2px rgba(26,21,16,0.04);
+    --radius:12px;--transition:0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,124,42,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+  /* Nav */
+  nav{position:relative;z-index:2;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(250,247,242,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;}
+  nav a{font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;transition:color var(--transition);}
+  nav a:hover{color:var(--accent);}
+  nav span{color:var(--border-hover);font-size:12px;}
+  nav .current{color:var(--text-secondary);font-weight:500;}
+
+  /* Main */
+  main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:56px 24px 72px;width:100%;animation:fadeUp 0.4s ease both;}
+
+  /* Hero */
+  .page-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid rgba(201,124,42,0.2);margin-bottom:16px;}
+  h1{font-size:clamp(26px,4vw,38px);font-weight:600;letter-spacing:-0.02em;line-height:1.2;margin-bottom:14px;}
+  .lead{font-size:17px;color:var(--text-secondary);font-weight:300;line-height:1.75;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:40px;}
+
+  /* Sections */
+  .section{margin-bottom:44px;}
+  .section h2{font-size:18px;font-weight:600;letter-spacing:-0.01em;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .section h2::before{content:'';display:block;width:3px;height:18px;background:var(--accent);border-radius:99px;flex-shrink:0;}
+  .section p{font-size:15px;color:var(--text-secondary);line-height:1.8;margin-bottom:12px;}
+  .section p:last-child{margin-bottom:0;}
+
+  /* Value cards */
+  .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;}
+  .value-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color var(--transition),box-shadow var(--transition);}
+  .value-card:hover{border-color:var(--border-hover);box-shadow:0 4px 16px var(--accent-glow);}
+  .value-icon{font-size:20px;margin-bottom:10px;}
+  .value-card h3{font-size:14px;font-weight:600;margin-bottom:6px;}
+  .value-card p{font-size:13px;color:var(--text-muted);line-height:1.6;margin:0;}
+
+  /* Stats row */
+  .stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+  .stat-box{flex:1;min-width:120px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;}
+  .stat-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--accent);display:block;margin-bottom:4px;}
+  .stat-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+
+  /* Footer */
+  footer{position:relative;z-index:1;margin-top:auto;padding:28px 24px;text-align:center;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px;}
+  footer p{font-size:13px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  .footer-nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;}
+  .footer-nav a{font-size:12px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;padding:2px 6px;transition:color var(--transition);}
+  .footer-nav a:hover{color:var(--accent);}
+  .footer-sep{font-size:12px;color:var(--border);font-family:'DM Mono',monospace;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:600px){.values-grid{grid-template-columns:1fr;}main{padding:40px 16px 56px;}nav{padding:14px 16px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Thezer0 Tools</a>
+  <span>›</span>
+  <span class="current">About</span>
+</nav>
+
+<main>
+  <div class="page-badge">About us</div>
+  <h1>Built for developers,<br>by developers.</h1>
+  <p class="lead">Thezer0 Tools is a free, no-login collection of utilities for developers and internet users. Every tool runs entirely in your browser — no data ever leaves your device.</p>
+
+  <div class="section">
+    <h2>What is Thezer0 Tools?</h2>
+    <p>We built Thezer0 Tools because we were tired of bloated websites full of ads, sign-up walls, and tools that upload your files to unknown servers. Every utility here does its job locally — in your browser tab — and nothing more.</p>
+    <p>Whether you need to format a JSON blob, generate a UUID, compress an image, or sort a list of lines, you can do it here in seconds without friction.</p>
+  </div>
+
+  <div class="section">
+    <h2>Our values</h2>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🔒</div>
+        <h3>Privacy first</h3>
+        <p>All processing happens in your browser. We never see your files or text.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <h3>Zero friction</h3>
+        <p>No accounts, no paywalls, no ads. Just open a tool and use it.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🛠</div>
+        <h3>Always free</h3>
+        <p>Every tool is and will remain completely free to use forever.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>By the numbers</h2>
+    <div class="stats-row">
+      <div class="stat-box"><span class="stat-num">22+</span><span class="stat-label">Tools</span></div>
+      <div class="stat-box"><span class="stat-num">5</span><span class="stat-label">Categories</span></div>
+      <div class="stat-box"><span class="stat-num">0</span><span class="stat-label">Sign-ups needed</span></div>
+      <div class="stat-box"><span class="stat-num">100%</span><span class="stat-label">Client-side</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Get in touch</h2>
+    <p>Have a tool suggestion, a bug report, or just want to say hi? Head over to the <a href="contact.html" style="color:var(--accent);text-decoration:none;font-weight:500;">Contact</a> page — we'd love to hear from you.</p>
+  </div>
+</main>
+
+<footer>
+  <p>Built with ❤️ by Thezer0</p>
+  <nav class="footer-nav">
+    <a href="index.html">Home</a><span class="footer-sep">|</span>
+    <a href="about.html">About</a><span class="footer-sep">|</span>
+    <a href="contact.html">Contact</a><span class="footer-sep">|</span>
+    <a href="privacy-policy.html">Privacy Policy</a><span class="footer-sep">|</span>
+    <a href="terms.html">Terms</a>
+  </nav>
+</footer>
+
+</body>
+</html>
