@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="logo.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UUID Generator — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf7f2;--surface:#ffffff;--border:#e8e0d0;--border-hover:#d4a96a;--text-primary:#1a1510;--text-secondary:#6b5f4e;--text-muted:#a89880;--accent:#c97c2a;--accent-light:#f5e6cc;--accent-glow:rgba(201,124,42,0.12);--shadow-sm:0 1px 3px rgba(26,21,16,0.06);--radius:12px;--transition:0.22s cubic-bezier(0.4,0,0.2,1);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,124,42,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  nav{position:relative;z-index:2;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(250,247,242,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;}
+  nav a{font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;transition:color var(--transition);}
+  nav a:hover{color:var(--accent);}
+  nav span{color:var(--border-hover);font-size:12px;}
+  nav .current{color:var(--text-secondary);font-weight:500;}
+  main{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:48px 24px 64px;width:100%;animation:fadeUp 0.4s ease both;}
+  .tool-header{margin-bottom:32px;}
+  .tool-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid rgba(201,124,42,0.2);margin-bottom:14px;}
+  h1{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px;}
+  .tool-desc{font-size:15px;color:var(--text-secondary);font-weight:300;}
+  .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);}
+  label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;font-family:'DM Mono',monospace;}
+  .section{margin-bottom:24px;}
+  .divider{height:1px;background:var(--border);margin:24px 0;}
+
+  /* Options row */
+  .options-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+  .opt-group{display:flex;flex-direction:column;gap:4px;}
+  .opt-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;}
+  select,input[type="number"]{padding:9px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text-primary);outline:none;transition:border-color var(--transition),box-shadow var(--transition);}
+  select:focus,input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);}
+  input[type="number"]{width:80px;}
+
+  /* UUID list */
+  .uuid-list{display:flex;flex-direction:column;gap:8px;}
+  .uuid-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;transition:border-color var(--transition);}
+  .uuid-item:hover{border-color:var(--border-hover);}
+  .uuid-val{font-family:'DM Mono',monospace;font-size:13.5px;color:var(--text-primary);flex:1;letter-spacing:0.02em;word-break:break-all;}
+  .uuid-seg .dash{color:var(--text-muted);}
+  .uuid-seg .seg{color:var(--text-primary);}
+  .uuid-seg .seg-1{color:#c97c2a;}
+  .uuid-seg .seg-5{color:#2d7a4f;}
+
+  button{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid transparent;transition:all var(--transition);}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(201,124,42,0.25);}
+  .btn-primary:hover{background:#b56d21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,124,42,0.35);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-secondary{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+  .btn-secondary:hover{border-color:var(--border-hover);color:var(--accent);transform:translateY(-1px);}
+  .btn-copy{background:var(--surface);color:var(--text-muted);border-color:var(--border);font-size:12px;padding:6px 12px;}
+  .btn-copy:hover{border-color:var(--border-hover);color:var(--accent);}
+  .btn-copy.copied{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+  .uuid-item{animation:slideIn 0.2s ease both;}
+  @media(max-width:480px){nav{padding:14px 16px;}main{padding:32px 16px 48px;}}
+</style>
+</head>
+<body>
+<nav><a href="../index.html">Thezer0 Tools</a><span>›</span><span class="current">UUID Generator</span></nav>
+<main>
+  <div class="tool-header">
+    <div class="tool-badge"># UUID</div>
+    <h1>UUID Generator</h1>
+    <p class="tool-desc">Generate v4 or v1-style UUIDs in bulk. Copy individually or all at once.</p>
+  </div>
+  <div class="card">
+    <div class="section">
+      <label>Options</label>
+      <div class="options-row">
+        <div class="opt-group">
+          <span class="opt-label">Version</span>
+          <select id="version">
+            <option value="v4">v4 (random)</option>
+            <option value="v4upper">v4 UPPERCASE</option>
+            <option value="noHyphens">v4 no hyphens</option>
+            <option value="braces">v4 {braces}</option>
+          </select>
+        </div>
+        <div class="opt-group">
+          <span class="opt-label">Count</span>
+          <input type="number" id="count" value="5" min="1" max="50">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" onclick="generate()">⚡ Generate</button>
+        <button class="btn-secondary" onclick="copyAll()">Copy All</button>
+        <button class="btn-secondary" onclick="clearList()">Clear</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="uuid-list" id="uuidList"></div>
+  </div>
+</main>
+<script>
+  function uuidV4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+  }
+
+  function formatUUID(raw) {
+    const v = document.getElementById('version').value;
+    if (v === 'v4upper') return raw.toUpperCase();
+    if (v === 'noHyphens') return raw.replace(/-/g, '');
+    if (v === 'braces') return `{${raw}}`;
+    return raw;
+  }
+
+  function colorize(uuid) {
+    const parts = uuid.replace(/[{}]/g, '').split('-');
+    if (parts.length !== 5) return `<span class="seg">${uuid}</span>`;
+    return parts.map((p, i) => `<span class="seg seg-${i+1}">${p}</span>`).join('<span class="dash">-</span>');
+  }
+
+  function generate() {
+    const count = Math.min(50, Math.max(1, parseInt(document.getElementById('count').value) || 1));
+    const list = document.getElementById('uuidList');
+    list.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const raw = uuidV4();
+      const fmt = formatUUID(raw);
+      const item = document.createElement('div');
+      item.className = 'uuid-item';
+      item.style.animationDelay = (i * 0.03) + 's';
+      item.innerHTML = `<div class="uuid-val uuid-seg">${colorize(fmt)}</div>
+        <button class="btn-copy" onclick="copySingle(this, '${fmt}')">Copy</button>`;
+      list.appendChild(item);
+    }
+  }
+
+  function copySingle(btn, val) {
+    navigator.clipboard.writeText(val);
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }
+
+  function copyAll() {
+    const vals = [...document.querySelectorAll('.uuid-val')].map(el => el.textContent);
+    if (!vals.length) return;
+    navigator.clipboard.writeText(vals.join('\n'));
+  }
+
+  function clearList() { document.getElementById('uuidList').innerHTML = ''; }
+
+  generate();
+</script>
+</body>
+</html>

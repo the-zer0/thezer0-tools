@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="logo.png">
+<title>Crop Image — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf7f2;--surface:#ffffff;--border:#e8e0d0;--border-hover:#d4a96a;--text-primary:#1a1510;--text-secondary:#6b5f4e;--text-muted:#a89880;--accent:#c97c2a;--accent-light:#f5e6cc;--accent-glow:rgba(201,124,42,0.12);--shadow-sm:0 1px 3px rgba(26,21,16,0.06);--radius:12px;--transition:0.22s cubic-bezier(0.4,0,0.2,1);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,124,42,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  nav{position:relative;z-index:2;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(250,247,242,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;}
+  nav a{font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;transition:color var(--transition);}
+  nav a:hover{color:var(--accent);}
+  nav span{color:var(--border-hover);font-size:12px;}
+  nav .current{color:var(--text-secondary);font-weight:500;}
+  main{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:48px 24px 64px;width:100%;animation:fadeUp 0.4s ease both;}
+  .tool-header{margin-bottom:32px;}
+  .tool-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid rgba(201,124,42,0.2);margin-bottom:14px;}
+  h1{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px;}
+  .tool-desc{font-size:15px;color:var(--text-secondary);font-weight:300;}
+  .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);}
+  label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;font-family:'DM Mono',monospace;}
+  .section{margin-bottom:24px;}
+  .divider{height:1px;background:var(--border);margin:24px 0;}
+
+  .dropzone{border:2px dashed var(--border);border-radius:10px;padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg);}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-glow);}
+  .dropzone-icon{font-size:32px;margin-bottom:10px;}
+  .dropzone-text{font-size:15px;color:var(--text-secondary);margin-bottom:4px;}
+  .dropzone-sub{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  #fileInput{display:none;}
+
+  /* Canvas crop area */
+  .canvas-wrap{position:relative;overflow:hidden;border-radius:8px;border:1.5px solid var(--border);background:#1a1510;display:flex;align-items:center;justify-content:center;user-select:none;}
+  canvas{display:block;max-width:100%;cursor:crosshair;}
+
+  /* Crop selection overlay */
+  .crop-overlay{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,0.45);pointer-events:none;display:none;}
+  .crop-handle{position:absolute;width:10px;height:10px;background:var(--accent);border-radius:2px;}
+  .crop-handle.tl{top:-5px;left:-5px;}
+  .crop-handle.tr{top:-5px;right:-5px;}
+  .crop-handle.bl{bottom:-5px;left:-5px;}
+  .crop-handle.br{bottom:-5px;right:-5px;}
+
+  /* Coord inputs */
+  .coord-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .coord-item label{margin-bottom:4px;}
+  input[type="number"]{width:100%;padding:9px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:14px;color:var(--text-primary);outline:none;transition:border-color var(--transition),box-shadow var(--transition);}
+  input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);}
+
+  /* Aspect presets */
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+  .preset-pill{padding:7px 14px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-family:'DM Mono',monospace;transition:all var(--transition);}
+  .preset-pill:hover{border-color:var(--border-hover);color:var(--accent);}
+
+  button{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid transparent;transition:all var(--transition);}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(201,124,42,0.25);}
+  .btn-primary:hover{background:#b56d21;transform:translateY(-1px);}
+  .btn-download{background:#2d7a4f;color:#fff;border-color:#2d7a4f;}
+  .btn-download:hover{background:#256040;transform:translateY(-1px);}
+  .btn-secondary{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+  .btn-secondary:hover{border-color:var(--border-hover);color:var(--accent);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .dim-info{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:8px;}
+  .dim-info span{color:var(--accent);}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:540px){.coord-grid{grid-template-columns:1fr 1fr;}nav{padding:14px 16px;}main{padding:32px 16px 48px;}}
+</style>
+</head>
+<body>
+<nav><a href="../index.html">Thezer0 Tools</a><span>›</span><span class="current">Crop Image</span></nav>
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">✂ Crop</div>
+    <h1>Crop Image</h1>
+    <p class="tool-desc">Draw a crop selection or enter exact coordinates. Supports all major formats.</p>
+  </div>
+  <div class="card">
+    <div class="section" id="uploadSection">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+        <div class="dropzone-icon">🖼️</div>
+        <div class="dropzone-text">Drop an image here or <strong>click to browse</strong></div>
+        <div class="dropzone-sub">JPG, PNG, WEBP supported</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" onchange="loadImage(this.files[0])">
+    </div>
+
+    <div id="cropSection" style="display:none">
+      <div class="section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <label style="margin:0">Crop Area — <span style="color:var(--text-secondary);font-weight:400;text-transform:none;letter-spacing:0">click and drag to select</span></label>
+          <button class="btn-secondary" style="padding:6px 12px;font-size:12px" onclick="resetFile()">Change image</button>
+        </div>
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="canvas"></canvas>
+          <div class="crop-overlay" id="cropOverlay">
+            <div class="crop-handle tl"></div>
+            <div class="crop-handle tr"></div>
+            <div class="crop-handle bl"></div>
+            <div class="crop-handle br"></div>
+          </div>
+        </div>
+        <div class="dim-info" id="dimInfo">Image: <span id="imgDims">—</span></div>
+      </div>
+
+      <div class="section">
+        <label>Aspect Ratio Presets</label>
+        <div class="presets">
+          <button class="preset-pill" onclick="setAspect(1,1)">1:1 Square</button>
+          <button class="preset-pill" onclick="setAspect(16,9)">16:9</button>
+          <button class="preset-pill" onclick="setAspect(4,3)">4:3</button>
+          <button class="preset-pill" onclick="setAspect(3,2)">3:2</button>
+          <button class="preset-pill" onclick="setAspect(9,16)">9:16 Portrait</button>
+          <button class="preset-pill" onclick="clearCrop()">Free</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>Exact Coordinates (pixels)</label>
+        <div class="coord-grid">
+          <div class="coord-item"><label>X</label><input type="number" id="cx" min="0" value="0" oninput="updateFromCoords()"></div>
+          <div class="coord-item"><label>Y</label><input type="number" id="cy" min="0" value="0" oninput="updateFromCoords()"></div>
+          <div class="coord-item"><label>Width</label><input type="number" id="cw" min="1" value="100" oninput="updateFromCoords()"></div>
+          <div class="coord-item"><label>Height</label><input type="number" id="ch" min="1" value="100" oninput="updateFromCoords()"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="actions">
+        <button class="btn-primary" onclick="cropImage()">⚡ Crop Image</button>
+        <button class="btn-download" id="dlBtn" style="display:none" onclick="download()">↓ Download</button>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+  let img = null, origFile = null, croppedBlob = null;
+  let scale = 1;
+  let crop = { x: 0, y: 0, w: 100, h: 100 };
+  let dragging = false, dragStart = { x: 0, y: 0 };
+  let aspectRatio = null;
+
+  function onDrag(e, active) { e.preventDefault(); document.getElementById('dropzone').classList.toggle('drag', active); }
+  function onDrop(e) { e.preventDefault(); onDrag(e, false); loadImage(e.dataTransfer.files[0]); }
+
+  function loadImage(file) {
+    if (!file) return;
+    origFile = file;
+    img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('cropSection').style.display = 'block';
+      document.getElementById('imgDims').textContent = `${img.width} × ${img.height}px`;
+      drawCanvas();
+      crop = { x: 0, y: 0, w: img.width, h: img.height };
+      updateCoordInputs();
+      drawOverlay();
+    };
+  }
+
+  function drawCanvas() {
+    const wrap = document.getElementById('canvasWrap');
+    const canvas = document.getElementById('canvas');
+    const maxW = wrap.clientWidth || 720;
+    scale = Math.min(1, maxW / img.width);
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    bindDrag();
+  }
+
+  function bindDrag() {
+    const canvas = document.getElementById('canvas');
+    canvas.onmousedown = e => {
+      const r = canvas.getBoundingClientRect();
+      dragging = true;
+      dragStart = { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale };
+    };
+    canvas.onmousemove = e => {
+      if (!dragging) return;
+      const r = canvas.getBoundingClientRect();
+      let ex = (e.clientX - r.left) / scale, ey = (e.clientY - r.top) / scale;
+      let x = Math.min(dragStart.x, ex), y = Math.min(dragStart.y, ey);
+      let w = Math.abs(ex - dragStart.x), h = Math.abs(ey - dragStart.y);
+      if (aspectRatio) { h = w / aspectRatio; }
+      crop = { x: Math.max(0, x), y: Math.max(0, y), w: Math.min(img.width - x, w), h: Math.min(img.height - y, h) };
+      updateCoordInputs(); drawOverlay();
+    };
+    canvas.onmouseup = () => { dragging = false; };
+    canvas.onmouseleave = () => { dragging = false; };
+  }
+
+  function drawOverlay() {
+    const overlay = document.getElementById('cropOverlay');
+    const wrap = document.getElementById('canvasWrap');
+    const canvas = document.getElementById('canvas');
+    const wr = wrap.getBoundingClientRect(), cr = canvas.getBoundingClientRect();
+    const offX = cr.left - wr.left, offY = cr.top - wr.top;
+    overlay.style.display = 'block';
+    overlay.style.left = (offX + crop.x * scale) + 'px';
+    overlay.style.top = (offY + crop.y * scale) + 'px';
+    overlay.style.width = (crop.w * scale) + 'px';
+    overlay.style.height = (crop.h * scale) + 'px';
+  }
+
+  function updateCoordInputs() {
+    document.getElementById('cx').value = Math.round(crop.x);
+    document.getElementById('cy').value = Math.round(crop.y);
+    document.getElementById('cw').value = Math.round(crop.w);
+    document.getElementById('ch').value = Math.round(crop.h);
+  }
+
+  function updateFromCoords() {
+    crop.x = parseInt(document.getElementById('cx').value) || 0;
+    crop.y = parseInt(document.getElementById('cy').value) || 0;
+    crop.w = parseInt(document.getElementById('cw').value) || 1;
+    crop.h = parseInt(document.getElementById('ch').value) || 1;
+    drawOverlay();
+  }
+
+  function setAspect(w, h) {
+    aspectRatio = w / h;
+    crop.h = crop.w / aspectRatio;
+    updateCoordInputs(); drawOverlay();
+  }
+
+  function clearCrop() { aspectRatio = null; }
+
+  function cropImage() {
+    if (!img) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(crop.w); canvas.height = Math.round(crop.h);
+    canvas.getContext('2d').drawImage(img, Math.round(crop.x), Math.round(crop.y), Math.round(crop.w), Math.round(crop.h), 0, 0, Math.round(crop.w), Math.round(crop.h));
+    canvas.toBlob(blob => {
+      croppedBlob = blob;
+      document.getElementById('dlBtn').style.display = 'inline-flex';
+    });
+  }
+
+  function download() {
+    if (!croppedBlob) return;
+    const ext = origFile.name.split('.').pop() || 'png';
+    const a = document.createElement('a'); a.href = URL.createObjectURL(croppedBlob); a.download = `cropped.${ext}`; a.click();
+  }
+
+  function resetFile() {
+    img = null; origFile = null; croppedBlob = null;
+    document.getElementById('uploadSection').style.display = 'block';
+    document.getElementById('cropSection').style.display = 'none';
+    document.getElementById('cropOverlay').style.display = 'none';
+    document.getElementById('dlBtn').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+  }
+</script>
+</body>
+</html>

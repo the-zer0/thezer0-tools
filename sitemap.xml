@@ -1,56 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/</loc>
+<loc>https://thezer0.tools/</loc>
+<lastmod>2026-03-12</lastmod>
+<changefreq>weekly</changefreq>
+<priority>1.0</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/json-formatter.html</loc>
+<loc>https://thezer0.tools/tools/json-formatter.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/word-counter.html</loc>
+<loc>https://thezer0.tools/tools/word-counter.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/password-generator.html</loc>
+<loc>https://thezer0.tools/tools/password-generator.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/base64-encoder.html</loc>
+<loc>https://thezer0.tools/tools/base64-encoder.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/case-converter.html</loc>
+<loc>https://thezer0.tools/tools/case-converter.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/color-picker.html</loc>
+<loc>https://thezer0.tools/tools/color-picker.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/rgb-hex.html</loc>
+<loc>https://thezer0.tools/tools/rgb-hex.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/image-compressor.html</loc>
+<loc>https://thezer0.tools/tools/image-compressor.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/image-resizer.html</loc>
+<loc>https://thezer0.tools/tools/image-resizer.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/image-to-pdf.html</loc>
+<loc>https://thezer0.tools/tools/image-to-pdf.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/pdf-merge.html</loc>
+<loc>https://thezer0.tools/tools/pdf-merge.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
-<loc>https://the-zer0.github.io/thezer0-tools/tools/pdf-split.html</loc>
+<loc>https://thezer0.tools/tools/pdf-split.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/jpg-to-png.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/json-validator.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/pdf-compress.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/pdf-rotate.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/png-to-jpg.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/regex-tester.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/remove-duplicates.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/text-sorter.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://thezer0.tools/tools/uuid-generator.html</loc>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 </urlset>

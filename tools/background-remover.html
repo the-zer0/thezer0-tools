@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="logo.png">
+<title>Background Remover Online — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf7f2;--surface:#ffffff;--border:#e8e0d0;--border-hover:#d4a96a;--text-primary:#1a1510;--text-secondary:#6b5f4e;--text-muted:#a89880;--accent:#c97c2a;--accent-light:#f5e6cc;--accent-glow:rgba(201,124,42,0.12);--shadow-sm:0 1px 3px rgba(26,21,16,0.06);--radius:12px;--transition:0.22s cubic-bezier(0.4,0,0.2,1);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,124,42,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  nav{position:relative;z-index:2;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(250,247,242,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;}
+  nav a{font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;transition:color var(--transition);}
+  nav a:hover{color:var(--accent);}
+  nav span{color:var(--border-hover);font-size:12px;}
+  nav .current{color:var(--text-secondary);font-weight:500;}
+  main{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:48px 24px 64px;width:100%;animation:fadeUp 0.4s ease both;}
+  .tool-header{margin-bottom:32px;}
+  .tool-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid rgba(201,124,42,0.2);margin-bottom:14px;}
+  h1{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px;}
+  .tool-desc{font-size:15px;color:var(--text-secondary);font-weight:300;}
+  .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);}
+  label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;font-family:'DM Mono',monospace;}
+  .section{margin-bottom:24px;}
+  .divider{height:1px;background:var(--border);margin:24px 0;}
+
+  .dropzone{border:2px dashed var(--border);border-radius:10px;padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg);}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-glow);}
+  .dropzone-icon{font-size:32px;margin-bottom:10px;}
+  .dropzone-text{font-size:15px;color:var(--text-secondary);margin-bottom:4px;}
+  .dropzone-sub{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  #fileInput{display:none;}
+
+  /* Method tabs */
+  .tabs{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px;}
+  .tab{flex:1;padding:11px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text-secondary);transition:all var(--transition);border:none;font-family:'DM Sans',sans-serif;}
+  .tab+.tab{border-left:1.5px solid var(--border);}
+  .tab.active{background:var(--accent-light);color:var(--accent);}
+
+  /* API key input */
+  .api-row{display:flex;gap:10px;align-items:stretch;}
+  .api-input{flex:1;padding:11px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text-primary);outline:none;transition:border-color var(--transition),box-shadow var(--transition);}
+  .api-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);}
+  .api-hint{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:6px;}
+  .api-hint a{color:var(--accent);}
+
+  /* Slider */
+  .slider-row{display:flex;align-items:center;gap:14px;}
+  input[type="range"]{-webkit-appearance:none;flex:1;height:4px;background:linear-gradient(to right,var(--accent) 0%,var(--accent) var(--pct,50%),var(--border) var(--pct,50%),var(--border) 100%);border-radius:99px;outline:none;cursor:pointer;}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 1px 4px rgba(201,124,42,0.4);cursor:pointer;}
+  .slider-val{min-width:40px;text-align:center;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent);background:var(--accent-light);padding:4px 10px;border-radius:6px;}
+
+  /* Preview grid */
+  .preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:540px){.preview-grid{grid-template-columns:1fr;}}
+  .preview-pane label{margin-bottom:8px;}
+
+  /* Checkerboard for transparency preview */
+  .preview-canvas-wrap{border-radius:8px;border:1.5px solid var(--border);overflow:hidden;position:relative;background-image:linear-gradient(45deg,#e0e0e0 25%,transparent 25%),linear-gradient(-45deg,#e0e0e0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e0e0e0 75%),linear-gradient(-45deg,transparent 75%,#e0e0e0 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;}
+  .preview-canvas-wrap canvas,.preview-canvas-wrap img{width:100%;display:block;max-height:240px;object-fit:contain;}
+  .plain-preview{border-radius:8px;border:1.5px solid var(--border);overflow:hidden;}
+  .plain-preview img{width:100%;display:block;max-height:240px;object-fit:contain;}
+
+  /* Color swap row */
+  .bg-swap-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .bg-swatch{width:28px;height:28px;border-radius:6px;border:2px solid var(--border);cursor:pointer;transition:all var(--transition);}
+  .bg-swatch:hover,.bg-swatch.selected{border-color:var(--accent);transform:scale(1.1);}
+  .bg-swatch.checker{background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);background-size:8px 8px;background-position:0 0,0 4px,4px -4px,-4px 0;}
+
+  /* Progress */
+  .progress-wrap{display:none;margin-top:16px;}
+  .progress-bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width 0.3s ease;}
+  .progress-label{font-size:13px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:8px;}
+
+  /* Info banner */
+  .info-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;margin-bottom:20px;}
+  .info-icon{font-size:16px;flex-shrink:0;}
+  .info-text{font-size:13px;color:#92400e;line-height:1.5;}
+
+  button{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid transparent;transition:all var(--transition);}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(201,124,42,0.25);}
+  .btn-primary:hover{background:#b56d21;transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .btn-download{background:#2d7a4f;color:#fff;border-color:#2d7a4f;}
+  .btn-download:hover{background:#256040;transform:translateY(-1px);}
+  .btn-secondary{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+  .btn-secondary:hover{border-color:var(--border-hover);color:var(--accent);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:480px){nav{padding:14px 16px;}main{padding:32px 16px 48px;}}
+</style>
+</head>
+<body>
+<nav><a href="../index.html">Thezer0 Tools</a><span>›</span><span class="current">Background Remover</span></nav>
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">✂ Remove BG</div>
+    <h1>Background Remover</h1>
+    <p class="tool-desc">Remove image backgrounds using edge detection or the remove.bg API for AI-powered results.</p>
+  </div>
+  <div class="card">
+
+    <!-- Method tabs -->
+    <div class="section">
+      <label>Method</label>
+      <div class="tabs">
+        <button class="tab active" onclick="setMethod('local',this)">Local (Edge Detection)</button>
+        <button class="tab" onclick="setMethod('api',this)">remove.bg API (AI)</button>
+      </div>
+
+      <!-- Local method info -->
+      <div id="localInfo">
+        <div class="info-banner">
+          <span class="info-icon">⚡</span>
+          <span class="info-text">Local processing — no upload needed. Works best on images with solid or simple backgrounds. Adjust the threshold to fine-tune the result.</span>
+        </div>
+      </div>
+
+      <!-- API method -->
+      <div id="apiInfo" style="display:none">
+        <div class="info-banner">
+          <span class="info-icon">🤖</span>
+          <span class="info-text">AI-powered removal via remove.bg. Handles complex backgrounds, hair, and fine details. Requires a free API key.</span>
+        </div>
+        <label>remove.bg API Key</label>
+        <div class="api-row">
+          <input type="password" class="api-input" id="apiKey" placeholder="Your API key…">
+        </div>
+        <p class="api-hint">Get a free key at <a href="https://www.remove.bg/api" target="_blank">remove.bg/api</a> — 50 free credits/month.</p>
+      </div>
+    </div>
+
+    <!-- Upload -->
+    <div class="section">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+        <div class="dropzone-icon">🖼️</div>
+        <div class="dropzone-text">Drop an image here or <strong>click to browse</strong></div>
+        <div class="dropzone-sub">JPG, PNG, WEBP supported</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" onchange="loadImage(this.files[0])">
+    </div>
+
+    <!-- Local controls -->
+    <div id="localControls" class="section" style="display:none">
+      <label>Background Threshold — <span id="threshLabel">30</span></label>
+      <div class="slider-row">
+        <input type="range" id="threshold" min="1" max="120" value="30" oninput="onSlider(this)">
+        <div class="slider-val" id="threshBadge">30</div>
+      </div>
+
+      <div style="margin-top:16px">
+        <label>Feather Edge (softness) — <span id="featherLabel">2</span>px</label>
+        <div class="slider-row">
+          <input type="range" id="feather" min="0" max="10" value="2" oninput="onFeather(this)">
+          <div class="slider-val" id="featherBadge">2</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result section -->
+    <div id="resultSection" style="display:none">
+      <div class="divider"></div>
+      <div class="section">
+        <div class="preview-grid">
+          <div>
+            <label>Original</label>
+            <div class="plain-preview"><img id="origImg" src="" alt="original"></div>
+          </div>
+          <div>
+            <label>Result</label>
+            <div class="preview-canvas-wrap"><canvas id="resultCanvas"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>Preview Background</label>
+        <div class="bg-swap-row">
+          <div class="bg-swatch checker selected" title="Transparent" onclick="setPreviewBg('transparent',this)"></div>
+          <div class="bg-swatch" style="background:#fff" onclick="setPreviewBg('#fff',this)"></div>
+          <div class="bg-swatch" style="background:#000" onclick="setPreviewBg('#000',this)"></div>
+          <div class="bg-swatch" style="background:#f5e6cc" onclick="setPreviewBg('#f5e6cc',this)"></div>
+          <div class="bg-swatch" style="background:#dbeafe" onclick="setPreviewBg('#dbeafe',this)"></div>
+          <input type="color" id="customBg" value="#ffffff" oninput="setPreviewBg(this.value,null)" title="Custom" style="width:28px;height:28px;border-radius:6px;border:2px solid var(--border);padding:2px;cursor:pointer;">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="processBtn" onclick="process()">⚡ Re-process</button>
+        <button class="btn-download" id="dlBtn" onclick="download()">↓ Download PNG</button>
+      </div>
+    </div>
+
+    <!-- Actions before upload result -->
+    <div id="initialActions">
+      <div class="actions">
+        <button class="btn-primary" id="processBtn2" onclick="process()" disabled>⚡ Remove Background</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
+
+  </div>
+</main>
+<script>
+  let origFile = null; let origImg = null; let method = 'local'; let resultImageData = null;
+
+  function setMethod(m, btn) {
+    method = m;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('localInfo').style.display = m === 'local' ? 'block' : 'none';
+    document.getElementById('apiInfo').style.display = m === 'api' ? 'block' : 'none';
+    if (m === 'local' && origImg) document.getElementById('localControls').style.display = 'block';
+    else document.getElementById('localControls').style.display = 'none';
+  }
+
+  function onDrag(e, active) { e.preventDefault(); document.getElementById('dropzone').classList.toggle('drag', active); }
+  function onDrop(e) { e.preventDefault(); onDrag(e, false); loadImage(e.dataTransfer.files[0]); }
+
+  function onSlider(el) {
+    const v = el.value, pct = ((v-el.min)/(el.max-el.min))*100;
+    el.style.setProperty('--pct', pct+'%');
+    document.getElementById('threshLabel').textContent = v;
+    document.getElementById('threshBadge').textContent = v;
+    if (origImg && method === 'local') processLocal();
+  }
+
+  function onFeather(el) {
+    const v = el.value, pct = ((v-el.min)/(el.max-el.min))*100;
+    el.style.setProperty('--pct', pct+'%');
+    document.getElementById('featherLabel').textContent = v;
+    document.getElementById('featherBadge').textContent = v;
+    if (origImg && method === 'local') processLocal();
+  }
+
+  function loadImage(file) {
+    if (!file) return;
+    origFile = file;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      origImg = img;
+      document.getElementById('origImg').src = img.src;
+      document.getElementById('processBtn2').disabled = false;
+      if (method === 'local') document.getElementById('localControls').style.display = 'block';
+    };
+  }
+
+  function process() {
+    if (!origImg) return;
+    if (method === 'local') processLocal();
+    else processAPI();
+  }
+
+  function processLocal() {
+    const thresh = parseInt(document.getElementById('threshold').value);
+    const feather = parseInt(document.getElementById('feather').value);
+
+    const canvas = document.getElementById('resultCanvas');
+    canvas.width = origImg.width; canvas.height = origImg.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(origImg, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    const w = canvas.width, h = canvas.height;
+
+    // Sample background color from corners
+    function getCornerColor(x, y) {
+      const idx = (y * w + x) * 4;
+      return [data[idx], data[idx+1], data[idx+2]];
+    }
+    const corners = [
+      getCornerColor(0, 0), getCornerColor(w-1, 0),
+      getCornerColor(0, h-1), getCornerColor(w-1, h-1)
+    ];
+    const bgR = Math.round(corners.reduce((a,c) => a+c[0], 0) / 4);
+    const bgG = Math.round(corners.reduce((a,c) => a+c[1], 0) / 4);
+    const bgB = Math.round(corners.reduce((a,c) => a+c[2], 0) / 4);
+
+    // Create alpha mask based on color distance from background
+    const alpha = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+      const r = data[i*4], g = data[i*4+1], b = data[i*4+2];
+      const dist = Math.sqrt((r-bgR)**2 + (g-bgG)**2 + (b-bgB)**2);
+      alpha[i] = dist < thresh ? 0 : 255;
+    }
+
+    // Simple feathering — blur alpha mask edges
+    if (feather > 0) {
+      const blurred = new Uint8Array(alpha);
+      for (let y = feather; y < h - feather; y++) {
+        for (let x = feather; x < w - feather; x++) {
+          let sum = 0, count = 0;
+          for (let fy = -feather; fy <= feather; fy++) {
+            for (let fx = -feather; fx <= feather; fx++) {
+              sum += alpha[(y+fy)*w + (x+fx)];
+              count++;
+            }
+          }
+          blurred[y*w+x] = sum / count;
+        }
+      }
+      for (let i = 0; i < w * h; i++) alpha[i] = blurred[i];
+    }
+
+    // Apply alpha
+    for (let i = 0; i < w * h; i++) {
+      data[i*4+3] = alpha[i];
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    resultImageData = canvas.toDataURL('image/png');
+    showResult();
+  }
+
+  async function processAPI() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey) { alert('Please enter your remove.bg API key.'); return; }
+
+    const pw = document.getElementById('progressWrap');
+    const fill = document.getElementById('progressFill');
+    const lbl = document.getElementById('progressLabel');
+    pw.style.display = 'block'; fill.style.width = '30%'; lbl.textContent = 'Uploading to remove.bg…';
+
+    try {
+      const formData = new FormData();
+      formData.append('image_file', origFile);
+      formData.append('size', 'auto');
+
+      const res = await fetch('https://api.remove.bg/v1.0/removebg', {
+        method: 'POST',
+        headers: { 'X-Api-Key': apiKey },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.errors?.[0]?.title || `API error ${res.status}`);
+      }
+
+      fill.style.width = '80%'; lbl.textContent = 'Processing…';
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const canvas = document.getElementById('resultCanvas');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resultImageData = canvas.toDataURL('image/png');
+        fill.style.width = '100%'; fill.style.background = '#2d7a4f'; lbl.textContent = '✓ Background removed';
+        showResult();
+      };
+      img.src = url;
+    } catch(e) {
+      fill.style.background = '#dc3545'; lbl.textContent = '✗ ' + e.message;
+    }
+  }
+
+  function showResult() {
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('initialActions').style.display = 'none';
+    if (method === 'local') document.getElementById('localControls').style.display = 'block';
+  }
+
+  function setPreviewBg(color, el) {
+    const wrap = document.querySelector('.preview-canvas-wrap');
+    document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+    if (color === 'transparent') {
+      wrap.style.background = '';
+    } else {
+      wrap.style.background = color;
+      wrap.style.backgroundImage = 'none';
+    }
+  }
+
+  function download() {
+    if (!resultImageData) return;
+    const a = document.createElement('a');
+    a.href = resultImageData;
+    const name = (origFile?.name?.replace(/\.[^.]+$/, '') || 'image') + '_nobg.png';
+    a.download = name; a.click();
+  }
+
+  // Init sliders
+  ['threshold','feather'].forEach(id => {
+    const el = document.getElementById(id);
+    const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+    el.style.setProperty('--pct', pct + '%');
+  });
+</script>
+</body>
+</html>

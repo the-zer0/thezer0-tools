@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="logo.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Rotate — Thezer0 Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<style>
+  :root{--bg:#faf7f2;--surface:#ffffff;--border:#e8e0d0;--border-hover:#d4a96a;--text-primary:#1a1510;--text-secondary:#6b5f4e;--text-muted:#a89880;--accent:#c97c2a;--accent-light:#f5e6cc;--accent-glow:rgba(201,124,42,0.12);--shadow-sm:0 1px 3px rgba(26,21,16,0.06);--radius:12px;--transition:0.22s cubic-bezier(0.4,0,0.2,1);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,124,42,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  nav{position:relative;z-index:2;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(250,247,242,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;}
+  nav a{font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;transition:color var(--transition);}
+  nav a:hover{color:var(--accent);}
+  nav span{color:var(--border-hover);font-size:12px;}
+  nav .current{color:var(--text-secondary);font-weight:500;}
+  main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:48px 24px 64px;width:100%;animation:fadeUp 0.4s ease both;}
+  .tool-header{margin-bottom:32px;}
+  .tool-badge{display:inline-flex;align-items:center;background:var(--accent-light);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid rgba(201,124,42,0.2);margin-bottom:14px;}
+  h1{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px;}
+  .tool-desc{font-size:15px;color:var(--text-secondary);font-weight:300;}
+  .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);}
+  label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;font-family:'DM Mono',monospace;}
+  .section{margin-bottom:24px;}
+  .divider{height:1px;background:var(--border);margin:24px 0;}
+
+  .dropzone{border:2px dashed var(--border);border-radius:10px;padding:40px 24px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg);}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-glow);}
+  .dropzone-icon{font-size:32px;margin-bottom:10px;}
+  .dropzone-text{font-size:15px;color:var(--text-secondary);margin-bottom:4px;}
+  .dropzone-sub{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  #fileInput{display:none;}
+
+  .file-info-bar{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;}
+  .file-icon-big{font-size:24px;}
+  .file-details{flex:1;min-width:0;}
+  .file-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .file-meta{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:2px;}
+  .change-link{font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'DM Sans',sans-serif;}
+
+  /* Page grid */
+  .page-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;}
+  .page-card{background:var(--bg);border:2px solid var(--border);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all var(--transition);position:relative;}
+  .page-card:hover{border-color:var(--border-hover);}
+  .page-card.selected{border-color:var(--accent);background:var(--accent-light);}
+  .page-thumb{width:100%;aspect-ratio:0.707;background:var(--surface);border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:8px;overflow:hidden;transition:transform var(--transition);}
+  .page-thumb canvas{width:100%;height:100%;object-fit:contain;}
+  .page-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-secondary);}
+  .page-rotate-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);margin-top:2px;}
+  .page-check{position:absolute;top:6px;right:6px;width:18px;height:18px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:10px;}
+  .page-card.selected .page-check{display:flex;}
+
+  /* Rotate controls */
+  .rotate-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .rot-btn{padding:9px 16px;border-radius:8px;font-size:20px;background:var(--surface);border:1.5px solid var(--border);cursor:pointer;transition:all var(--transition);}
+  .rot-btn:hover{border-color:var(--border-hover);background:var(--accent-light);transform:scale(1.05);}
+  .select-all-btn{font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;text-decoration:underline;padding:0;}
+
+  .progress-wrap{display:none;margin-top:16px;}
+  .progress-bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width 0.3s ease;}
+  .progress-label{font-size:13px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:8px;}
+
+  button{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid transparent;transition:all var(--transition);}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(201,124,42,0.25);}
+  .btn-primary:hover{background:#b56d21;transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:480px){nav{padding:14px 16px;}main{padding:32px 16px 48px;}}
+</style>
+</head>
+<body>
+<nav><a href="../index.html">Thezer0 Tools</a><span>›</span><span class="current">PDF Rotate</span></nav>
+<main>
+  <div class="tool-header">
+    <div class="tool-badge">↻ Rotate</div>
+    <h1>PDF Rotate</h1>
+    <p class="tool-desc">Rotate individual pages or the entire PDF by 90°, 180°, or 270°.</p>
+  </div>
+  <div class="card">
+    <div class="section" id="uploadSection">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+        <div class="dropzone-icon">📄</div>
+        <div class="dropzone-text">Drop a PDF here or <strong>click to browse</strong></div>
+        <div class="dropzone-sub">Single PDF file</div>
+      </div>
+      <input type="file" id="fileInput" accept="application/pdf" onchange="loadPDF(this.files[0])">
+    </div>
+
+    <div id="rotateSection" style="display:none">
+      <div class="section">
+        <div class="file-info-bar">
+          <span class="file-icon-big">📄</span>
+          <div class="file-details">
+            <div class="file-name" id="fileName">—</div>
+            <div class="file-meta"><span id="pageCount">0</span> pages</div>
+          </div>
+          <button class="change-link" onclick="resetFile()">Change</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <label style="margin:0">Pages — <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-secondary)">click to select</span></label>
+          <button class="select-all-btn" onclick="toggleAll()">Select All</button>
+        </div>
+        <div class="page-grid" id="pageGrid"></div>
+      </div>
+
+      <div class="section">
+        <label>Rotate Selected Pages</label>
+        <div class="rotate-controls">
+          <button class="rot-btn" onclick="applyRotation(90)" title="Rotate 90° clockwise">↻ 90°</button>
+          <button class="rot-btn" onclick="applyRotation(180)" title="Rotate 180°">↕ 180°</button>
+          <button class="rot-btn" onclick="applyRotation(270)" title="Rotate 90° counter-clockwise">↺ 270°</button>
+          <button class="rot-btn" onclick="applyRotation(0,true)" title="Reset">✕ Reset</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="actions">
+        <button class="btn-primary" id="applyBtn" onclick="applyAndSave()">⚡ Save PDF</button>
+      </div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+  let pdfFile = null; let totalPages = 0; let rotations = []; let selected = new Set();
+  let allSelected = false;
+
+  function onDrag(e, active) { e.preventDefault(); document.getElementById('dropzone').classList.toggle('drag', active); }
+  function onDrop(e) { e.preventDefault(); onDrag(e, false); loadPDF(e.dataTransfer.files[0]); }
+  function fmtSize(b) { return b < 1024*1024 ? (b/1024).toFixed(1)+' KB' : (b/(1024*1024)).toFixed(2)+' MB'; }
+
+  async function loadPDF(file) {
+    if (!file || file.type !== 'application/pdf') return;
+    pdfFile = file;
+    const { PDFDocument } = PDFLib;
+    const doc = await PDFDocument.load(await file.arrayBuffer());
+    totalPages = doc.getPageCount();
+    rotations = new Array(totalPages).fill(0);
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('pageCount').textContent = totalPages;
+    buildPageGrid();
+    document.getElementById('uploadSection').style.display = 'none';
+    document.getElementById('rotateSection').style.display = 'block';
+  }
+
+  function buildPageGrid() {
+    const grid = document.getElementById('pageGrid');
+    grid.innerHTML = Array.from({length: totalPages}, (_, i) => `
+      <div class="page-card" id="pc-${i}" onclick="togglePage(${i})">
+        <div class="page-thumb" id="pt-${i}">p.${i+1}</div>
+        <div class="page-num">Page ${i+1}</div>
+        <div class="page-rotate-label" id="rl-${i}"></div>
+        <div class="page-check">✓</div>
+      </div>`).join('');
+  }
+
+  function togglePage(i) {
+    if (selected.has(i)) selected.delete(i); else selected.add(i);
+    document.getElementById('pc-'+i).classList.toggle('selected', selected.has(i));
+  }
+
+  function toggleAll() {
+    allSelected = !allSelected;
+    for (let i = 0; i < totalPages; i++) {
+      if (allSelected) selected.add(i); else selected.delete(i);
+      document.getElementById('pc-'+i).classList.toggle('selected', allSelected);
+    }
+  }
+
+  function applyRotation(deg, reset = false) {
+    const targets = selected.size > 0 ? [...selected] : [...Array(totalPages).keys()];
+    targets.forEach(i => {
+      rotations[i] = reset ? 0 : (rotations[i] + deg) % 360;
+      const rl = document.getElementById('rl-'+i);
+      rl.textContent = rotations[i] ? `${rotations[i]}°` : '';
+      const thumb = document.getElementById('pt-'+i);
+      thumb.style.transform = `rotate(${rotations[i]}deg)`;
+    });
+  }
+
+  async function applyAndSave() {
+    if (!pdfFile) return;
+    const pw = document.getElementById('progressWrap');
+    const fill = document.getElementById('progressFill');
+    const lbl = document.getElementById('progressLabel');
+    pw.style.display = 'block'; fill.style.background = 'var(--accent)';
+    lbl.textContent = 'Applying rotations…'; fill.style.width = '40%';
+
+    const { PDFDocument, degrees } = PDFLib;
+    const doc = await PDFDocument.load(await pdfFile.arrayBuffer());
+    doc.getPages().forEach((page, i) => {
+      if (rotations[i]) page.setRotation(degrees(rotations[i]));
+    });
+
+    fill.style.width = '80%'; lbl.textContent = 'Saving…';
+    const bytes = await doc.save();
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rotated.pdf'; a.click();
+    fill.style.width = '100%'; fill.style.background = '#2d7a4f'; lbl.textContent = '✓ Done';
+  }
+
+  function resetFile() {
+    pdfFile = null; selected.clear();
+    document.getElementById('uploadSection').style.display = 'block';
+    document.getElementById('rotateSection').style.display = 'none';
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+  }
+</script>
+</body>
+</html>
