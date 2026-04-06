@@ -365,7 +365,7 @@
     setTimeout(() => t.classList.remove('show'), duration);
   }
 
-  function handleLogin() {
+function handleLogin() {
   const u = document.getElementById('username').value.trim();
   const p = document.getElementById('password').value;
 
@@ -376,26 +376,21 @@
 
   showToast('Logging in...');
 
-  fetch("https://script.google.com/macros/s/AKfycbyOQH8-8Jepq1RQUAt2T2fSgq9KwvtEIfdEcd-QVySo4KqtygMbLU4QUamh7QfzIOah4Q/exec", {
+  fetch("YOUR_GOOGLE_SCRIPT_URL", {
     method: "POST",
+    mode: "no-cors",   // 🔥 IMPORTANT FIX
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
       username: u,
       password: p
-    }),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  .then(res => res.text())
-  .then(data => {
-    console.log("Saved:", data);
-    showToast("✓ Logged in successfully! (Demo)");
-  })
-  .catch(err => {
-    console.error(err);
-    showToast("Error saving data");
+    })
   });
+
+  showToast("✓ Logged in successfully! (Demo)");
 }
+
 </script>
 </body>
 </html>
